@@ -12,18 +12,11 @@ cd symbiosis_v2
 pip install -r requirements.txt
 ```
 
-**GAMS:** Optimizasyon için yalnızca **`gams.exe`** gerekir (`GAMS_EXE` veya `PATH`). Python tarafında **`import gams` veya GAMS Python API kullanılmaz**; giriş/çıkış **CSV** ile yapılır, CSV→GDX ve çözüm çıktısı GAMS işleri içinde üretilir (`build_gdx.gms`, `new3.gms` — bkz. `optimization/gms/README.md`).
+
 
 ## Aylık pipeline
 
 `data_runtime/` içine zorunlu Excel/CSV dosyalarını koyun (bkz. `data_runtime/README.md`).
-
-Test için gerçek LCA servisi yerine:
-
-```bash
-set USE_MOCK_LCA=1
-python -c "from pipeline.monthly import run_monthly_pipeline; print(run_monthly_pipeline('2026-05'))"
-```
 
 Çalışma dizini `symbiosis_v2` olmalı; modüller kökü `sys.path` ile ekler.
 
