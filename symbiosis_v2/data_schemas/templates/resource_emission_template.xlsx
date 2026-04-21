@@ -1,0 +1,5 @@
+resource_type,emission_factor,unit,source
+electricity,0.42,kg_CO2_per_kWh,Example grid factor (update with TEİAŞ/IPCC)
+thermal_energy,0.25,kg_CO2_per_kWh,Example natural gas/steam mix
+water,0.0003,kg_CO2_per_m3,Example water treatment & pumping
+chemicals,1.5,kg_CO2_per_kg,Generic chemicals footprint (placeholder)

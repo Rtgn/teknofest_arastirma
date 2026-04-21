@@ -1,0 +1,37 @@
+**Yönetici Özeti**
+
+F_2 fabrikamızın aylık sürdürülebilirlik raporunu ele alacağım. Geçtiğimiz ayın verileri incelendiğinde, atık yönetimi, enerji ve su tasarrufu alanlarında önemli gelişmeler gerçekleşmiş olup, bu sonuçlar olumlu olarak yorumlanabilir.
+
+**Aylık Performans Analizi**
+
+- Gönderilen toplam atık: 61.5 ton ile geçen ayın rakamının %0.0'ini ifade ediyor. Bu durumun nedeninin aranması gerekecek.
+- Alınan toplam geri kazanım ise 85.24 ton ile geçen aya göre %1055.01 oranında artış göstermiş olup, bu sonuçlar olumlu olarak yorumlanabilir. Bu rakamın artmasının nedeni, yeni atık azaltma programlarının etkili bir şekilde uygulanmış olmalıdır.
+- Toplam kâr: 71.0 Birim ile geçen ayın rakamının %158.28'ini ifade ediyor. Bu durumun temelinde enerji ve su tasarrufu da büyük rol oynamış gibi görünüyor.
+- Toplam taşıma maliyeti: 0.0 Birim ile geçen aya göre herhangi bir artış ya da azalış gözlenmiyor.
+- Önlenen emisyon: 0.0224 CO2e ile geçen ayın rakamının %157.47'ini ifade ediyor. Bu durum, daha temiz ve sürdürülebilir üretim sürecine olan bağlılığımızın bir göstergesi olarak yorumlanabilir.
+- Net CO2e: 0.0185 CO2e ile geçen aya göre %156.94 oranında düşüş göstermiş olup, bu sonuçlar da olumlu olarak yorumlanabilir.
+
+**Ekonomik Değerlendirme**
+
+Fabrika'nın aylık sürdürülebilirlik performansının ekonomik açıdan değerlendirilmesinde, enerji ve su tasarrufunun önemli rol oynadığını gözlemledik. Bu gelişmelerin temelinde de yenilikçi yaklaşımların ve daha verimli üretim yöntemlerinin uygulanmış olabileceği anlıyoruz.
+
+**Çevresel Etki Analizi**
+
+Fabrika'nın çevresel etkisinin azaltılması için atık yönetimi ve enerji tasarrufu alanında gerçekleştirilen gelişmelerin önemli olduğunu görüyoruz. Özellikle atıkların geri kazanımı %1055.01 oranında artış göstermiş ve önlenem emisyonlar da düşüş eğiliminde. Bu tür adımlar, daha temiz üretim süreçlerine yönelik olan bağlılığımızın bir göstergesi olarak yorumlanabilir.
+
+**Kaynak Verimliliği**
+
+Fabrika'nın enerji ve su tasarrufu alanında önemli gelişmeler gerçekleştirdiğini görüyoruz. Özellikle elektrik kullanımı % oranında azalırken, su tasarrufunda da önemli oranda artış gözlemledik. Bu durumlar kaynak verimliliğimize katkıda bulunmuş ve fabrikanın daha sürdürülebilir bir üretim süreci üzerinde çalıştığını gösteriyor.
+
+**Ayın En Verimli İşbirliği**
+
+F_2 fabrikamızın en verimli işbirliğine katılan partneri F_6'dır. Bu işbirliğinin temelinde atık yönetiminde yaşanan gelişmeler yatıyor ve partnerlerin etkili şekilde işbirliklerinde olduğu görülmekte.
+
+**Gelecek Ay İçin Öneriler**
+
+- Atık azaltımı amacıyla yeni programlar geliştirilerek uygulanmalıdır.
+- Enerji tasarrufu hedefleri doğrultusunda daha fazla çalışma yapılacak olmalı.
+- Su tasarrufunu da optimize etmek için ek adımlar atılmalıdır.
+- F_6 ile devam eden işbirliğimizin desteklenmesi önemlidir.
+
+Bu rapor, f_2 fabrikasının aylık sürdürülebilirlik performansını değerlendirmek ve gelecekteki hedefler açısından bazı öneriler sunmak amacıyla hazırlandı. Fabrika yönetiminin bu raporun analizini yapması için teşekkür ederim.

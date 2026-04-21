@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}Aylık veri girdileri{% endblock %}
+{% block page_title %}Aylık veri — fabrika / proses / kapasite{% endblock %}
+
+{% block content %}
+<p class="code-path">Veri kökü: <code>{{ runtime_path }}</code></p>
+
+<!--<div class="chart-card" style="padding:20px;margin-bottom:16px;">
+  <div class="table-header" style="margin-bottom:8px;">Neden <code>process_capacity_monthly</code> sabit görünüyor?</div>
+  <p style="font-size:14px;color:var(--text-secondary);line-height:1.55;">
+    Aylık kapasite <strong>kg/ay</strong> olarak pipeline içinde hesaplanır; Excel’de tek sütun olarak yazılır.
+    Varsayılan <strong>10 ton/gün</strong> ve tüm çarpanların 1 olduğu durumda:
+    <code>10 × 1000 × 30 = 300000</code> kg/ay elde edilir — bu, sabit bir iş kuralı değil,
+    <strong>ton/gün</strong> değeriniz ile fabrika/proses <strong>durum</strong> ve <strong>kapasite faktörü</strong> çarpılarak değişir.
+  </p>
+  <p style="font-size:13px;color:var(--text-secondary);margin-top:10px;font-family:monospace;">
+    capacity_monthly_kg = capacity_ton_per_day × 1000 × 30 × factory_status × process_status × capacity_factor
+  </p>
+</div>-->
+
+<div class="chart-card" style="padding:16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+  <button type="button" class="btn-primary" id="btnLoad">Dosyalardan yükle</button>
+  <button type="button" class="btn-primary" id="btnSave" style="background:var(--accent-purple);">Kaydet</button>
+  <button type="button" id="btnEnsure" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);cursor:pointer;">
+    Eksik ay satırlarını doldur
+  </button>
+  <span id="saveMsg" style="font-size:13px;color:var(--accent-green);display:none;"></span>
+  <span id="loadErr" style="font-size:13px;color:var(--accent-orange);display:none;"></span>
+</div>
+
+<div class="chart-card" style="padding:16px;margin-bottom:16px;">
+  <span class="menu-label">Aylık tam pipeline (LCA + MILP)</span>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:8px;">
+    <label>Periyot YYYY-MM
+      <input type="text" id="pipePeriod" placeholder="2026-05" value="{{ base_periods[-1] if base_periods else '' }}"
+        style="margin-left:8px;padding:6px 10px;border-radius:6px;border:1px solid var(--border);width:120px;background:var(--surface);color:var(--text);" />
+    </label>
+    <button type="button" class="btn-primary" id="btnPipeline">Pipeline çalıştır</button>
+  </div>
+  <pre id="pipeOut" style="margin-top:12px;font-size:12px;white-space:pre-wrap;display:none;color:var(--text-secondary);"></pre>
+</div>
+
+<div class="chart-card" style="padding:12px;margin-bottom:12px;">
+  <span class="menu-label">Görünüm</span>
+  <select id="panelSelect" class="pill" style="margin-left:8px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);">
+    <option value="factory_status">Fabrika durumu (ay × status)</option>
+    <option value="process_status">Proses durumu (ay × status)</option>
+    <option value="capacity_factors">Kapasite faktörleri (fabrika × ay)</option>
+    <option value="process_capacity">Baz kapasite — ton/gün (proses başına)</option>
+  </select>
+</div>
+
+<div id="panelFactory" class="matrix-panel"></div>
+<div id="panelProcess" class="matrix-panel" style="display:none;"></div>
+<div id="panelCapFac" class="matrix-panel" style="display:none;"></div>
+<div id="panelTonDay" style="display:none;"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const MONTHS = [1,2,3,4,5,6,7,8,9,10,11,12];
+let state = {
+  factory_status: [],
+  process_status: [],
+  capacity_factors: [],
+  process_capacity: [],
+  labels: { factories: {}, processes: {} },
+  factory_ids: [],
+  process_ids: [],
+};
+
+function flatToMap(rows, idKey, monthKey, valKey) {
+  const m = new Map();
+  (rows || []).forEach(r => {
+    const id = String(r[idKey]).trim();
+    const mo = parseInt(r[monthKey], 10);
+    if (!id || !mo) return;
+    m.set(id + '|' + mo, parseFloat(r[valKey]) || 0);
+  });
+  return m;
+}
+
+function renderMatrix(container, rowIds, labels, map, idKey, valField, rowPrefix) {
+  let html = '<div style="overflow:auto;max-height:70vh;"><table class="data-table"><thead><tr><th style="position:sticky;left:0;background:var(--bg-card);z-index:1;">' + rowPrefix + '</th>';
+  MONTHS.forEach(mo => { html += '<th>M' + mo + '</th>'; });
+  html += '</tr></thead><tbody>';
+  rowIds.forEach(rid => {
+    const rk = String(rid);
+    const lab = labels[rk] != null ? labels[rk] : rk;
+    html += '<tr><td style="position:sticky;left:0;background:var(--bg-secondary);font-size:12px;white-space:nowrap;max-width:220px;" title="' + escapeHtml(lab) + '"><code>' + escapeHtml(rk) + '</code><div style="font-size:10px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(lab) + '</div></td>';
+    MONTHS.forEach(mo => {
+      const v = map.get(rk + '|' + mo);
+      const show = v !== undefined && !isNaN(v) ? v : 1;
+      html += '<td><input type="number" class="mcell" data-rk="' + escapeHtml(rk) + '" data-mo="' + mo + '" data-field="' + valField + '" value="' + show + '" step="0.01" style="width:56px;padding:4px;font-size:12px;" /></td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+function collectMatrix(container, idKey, monthKey, valKey) {
+  const out = [];
+  container.querySelectorAll('.mcell').forEach(inp => {
+    const rk = inp.dataset.rk;
+    const mo = parseInt(inp.dataset.mo, 10);
+    const v = parseFloat(inp.value);
+    const row = {};
+    row[idKey] = idKey === 'factory_id' ? parseInt(rk, 10) : rk;
+    row[monthKey] = mo;
+    row[valKey] = isNaN(v) ? 0 : v;
+    out.push(row);
+  });
+  return out;
+}
+
+function renderTonDay(container) {
+  const rows = state.process_capacity || [];
+  const pmap = state.labels.processes || {};
+  if (!rows.length) {
+    container.innerHTML = '<p class="empty-state" style="padding:16px;">Kayıt yok. Önce <strong>Eksik ay satırlarını doldur</strong> ile process_capacity.csv oluşturun veya dosyayı yükleyin.</p>';
+    return;
+  }
+  let html = '<div style="overflow:auto;max-height:420px;"><table class="data-table"><thead><tr><th>process_id</th><th>Ad</th><th>capacity_ton_per_day</th></tr></thead><tbody>';
+  rows.forEach(r => {
+    const pid = String(r.process_id).trim();
+    const ton = parseFloat(r.capacity_ton_per_day);
+    html += '<tr><td><code>' + escapeHtml(pid) + '</code></td><td>' + escapeHtml(pmap[pid] || '') + '</td><td><input type="number" class="tonday" data-pid="' + escapeHtml(pid) + '" value="' + (isNaN(ton) ? 10 : ton) + '" step="0.1" min="0" style="width:100px;padding:4px;" /></td></tr>';
+  });
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+function collectTonDay(container) {
+  const out = [];
+  container.querySelectorAll('.tonday').forEach(inp => {
+    out.push({ process_id: inp.dataset.pid, capacity_ton_per_day: parseFloat(inp.value) || 0 });
+  });
+  return out;
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function syncStateFromDom() {
+  const pf = document.getElementById('panelFactory');
+  const pp = document.getElementById('panelProcess');
+  const pc = document.getElementById('panelCapFac');
+  const pt = document.getElementById('panelTonDay');
+  if (pf.querySelector('.mcell')) state.factory_status = collectMatrix(pf, 'factory_id', 'month', 'status');
+  if (pp.querySelector('.mcell')) state.process_status = collectMatrix(pp, 'process_id', 'month', 'status');
+  if (pc.querySelector('.mcell')) state.capacity_factors = collectMatrix(pc, 'factory_id', 'month', 'capacity_factor');
+  if (pt.querySelector('.tonday')) state.process_capacity = collectTonDay(pt);
+}
+
+function renderAll() {
+  const facLabels = state.labels.factories || {};
+  const procLabels = state.labels.processes || {};
+  const fmap = flatToMap(state.factory_status, 'factory_id', 'month', 'status');
+  const pmap = flatToMap(state.process_status, 'process_id', 'month', 'status');
+  const cmap = flatToMap(state.capacity_factors, 'factory_id', 'month', 'capacity_factor');
+
+  const fids = (state.factory_ids && state.factory_ids.length) ? state.factory_ids.map(String) : [...new Set(state.factory_status.map(r => String(r.factory_id)))];
+  const pids = (state.process_ids && state.process_ids.length) ? state.process_ids : [...new Set(state.process_status.map(r => String(r.process_id)))];
+
+  renderMatrix(document.getElementById('panelFactory'), fids, facLabels, fmap, 'factory_id', 'status', 'Fabrika');
+  renderMatrix(document.getElementById('panelProcess'), pids, procLabels, pmap, 'process_id', 'status', 'Proses');
+  renderMatrix(document.getElementById('panelCapFac'), fids, facLabels, cmap, 'factory_id', 'capacity_factor', 'Fabrika');
+  renderTonDay(document.getElementById('panelTonDay'));
+}
+
+document.getElementById('btnLoad').addEventListener('click', () => {
+  const err = document.getElementById('loadErr');
+  err.style.display = 'none';
+  fetch('/api/monthly-inputs')
+    .then(r => r.json())
+    .then(data => {
+      state.factory_status = data.factory_status || [];
+      state.process_status = data.process_status || [];
+      state.capacity_factors = data.capacity_factors || [];
+      state.process_capacity = data.process_capacity || [];
+      state.labels = data.labels || { factories: {}, processes: {} };
+      state.factory_ids = data.factory_ids || [];
+      state.process_ids = data.process_ids || [];
+      if (data.errors && data.errors.length) {
+        err.textContent = data.errors.join(' · ');
+        err.style.display = 'block';
+      }
+      renderAll();
+    })
+    .catch(e => {
+      err.textContent = String(e);
+      err.style.display = 'block';
+    });
+});
+
+document.getElementById('btnSave').addEventListener('click', () => {
+  syncStateFromDom();
+  const msg = document.getElementById('saveMsg');
+  msg.style.display = 'none';
+  fetch('/api/monthly-inputs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      factory_status: state.factory_status,
+      process_status: state.process_status,
+      capacity_factors: state.capacity_factors,
+      process_capacity: state.process_capacity,
+    }),
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'success') {
+        msg.textContent = 'Kaydedildi.';
+        msg.style.display = 'inline';
+      } else {
+        alert(data.error || 'Kayıt hatası');
+      }
+    })
+    .catch(e => alert(e));
+});
+
+document.getElementById('btnEnsure').addEventListener('click', () => {
+  if (!confirm('Eksik (fabrika|proses × ay) satırları varsayılan 1 ile eklenecek. Devam?')) return;
+  fetch('/api/monthly-inputs/ensure', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      alert((data.messages || []).join('\n') || JSON.stringify(data));
+      if (data.status === 'success') document.getElementById('btnLoad').click();
+    });
+});
+
+document.getElementById('btnPipeline').addEventListener('click', () => {
+  const period = document.getElementById('pipePeriod').value.trim();
+  const pre = document.getElementById('pipeOut');
+  pre.style.display = 'block';
+  pre.textContent = 'Çalışıyor…';
+  fetch('/api/monthly-pipeline/run', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ period }),
+  })
+    .then(r => r.json())
+    .then(data => { pre.textContent = JSON.stringify(data, null, 2); })
+    .catch(e => { pre.textContent = String(e); });
+});
+
+document.getElementById('panelSelect').addEventListener('change', () => {
+  const v = document.getElementById('panelSelect').value;
+  document.getElementById('panelFactory').style.display = v === 'factory_status' ? 'block' : 'none';
+  document.getElementById('panelProcess').style.display = v === 'process_status' ? 'block' : 'none';
+  document.getElementById('panelCapFac').style.display = v === 'capacity_factors' ? 'block' : 'none';
+  document.getElementById('panelTonDay').style.display = v === 'process_capacity' ? 'block' : 'none';
+});
+
+document.getElementById('btnLoad').click();
+</script>
+{% endblock %}
