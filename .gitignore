@@ -15,6 +15,3 @@ outputs/runtime/selected_raw_*.csv
 outputs/runtime/osb_limit.txt
 outputs/runtime/scenario_runs/
 
-# Generated reports
-services/reporter/reports/*
-!services/reporter/reports/.gitkeep

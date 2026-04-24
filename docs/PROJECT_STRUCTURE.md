@@ -13,8 +13,7 @@ teknofest_arastirma/
 │   └── runtime/         Çalışma zamanı girdileri ve üretilen çıktılar
 ├── pipeline/            Aylık ve senaryo orkestrasyonu
 ├── services/
-│   ├── lca/             Yerel LCA servis mantığı ve SQLite modelleri
-│   └── reporter/        Raporlama yardımcıları ve prompt dosyaları
+│   └── lca/             Yerel LCA servis mantığı ve SQLite modelleri
 └── utils/               Tek seferlik yardımcı betikler ve üreticiler
 ```
 
@@ -37,7 +36,6 @@ Aylık çalıştırmalar, senaryo çalıştırmaları, dijital ikiz simülasyonu
 İç servisleri içerir:
 
 - `lca/`: yerel yaşam döngüsü değerlendirmesi hesaplamaları ve profil/faktör kalıcılığı
-- `reporter/`: rapor üretim mantığı ve prompt şablonları
 
 ### `optimization/`
 

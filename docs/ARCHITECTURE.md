@@ -6,7 +6,7 @@ Bu belge, OSB ölçeğinde **endüstriyel simbiyoz** karar destek sisteminin v2 
 
 ## 1. Tasarım ilkeleri
 
-- **Tek sorumluluk:** `core` (iş kuralları ve dış servis sözleşmeleri), `optimization` (PuLP MILP çözücüsü + sonuç okuma), `pipeline` (üretim ve senaryo orkestrasyonu), `data_schemas` (şablon ve sütun sözleşmesi), `app` (Flask arayüzü + HTTP uçları), `services` (LCA ve raporlama), `utils` (yardımcı betikler).
+- **Tek sorumluluk:** `core` (iş kuralları ve dış servis sözleşmeleri), `optimization` (PuLP MILP çözücüsü + sonuç okuma), `pipeline` (üretim ve senaryo orkestrasyonu), `data_schemas` (şablon ve sütun sözleşmesi), `app` (Flask arayüzü + HTTP uçları), `services` (LCA), `utils` (yardımcı betikler).
 - **Periyot:** Tüm üretim çıktıları `YYYY-MM` ile etiketlenir; senaryo koşuları ayrı bir sanal periyot veya etiket ile izole edilir (v1 ile uyumlu düşünülmüştür).
 - **Girdi/çıktı ayrımı:** Ham Excel/CSV şablonları `data_schemas/templates/` altında; çalışma sırasında üretilen aylık dosyalar `outputs/runtime/` altında tutulur.
 
@@ -25,7 +25,7 @@ Bu belge, OSB ölçeğinde **endüstriyel simbiyoz** karar destek sisteminin v2 
 | **Aylık pipeline** | `pipeline/monthly.py` | LCA öncesi üretim → (opsiyonel) `waste_coefficients` ile **kg min–max** → yardımcı prosesleri eleme → `process_metadata` skor yer tutucusu → temizlik → MILP → seçilen sonuçlar (`run_monthly_pipeline` uçtan uca sonra). |
 | **Senaryo pipeline** | `pipeline/scenario.py` | `ScenarioWasteBounds` ile senaryo **atık kg min–max** → `emission_limits_report` ile **BREF limit** raporu → modifikasyon / LCA / MILP (`run_scenario_pipeline` uçtan uca sonra). |
 | **Uygulama** | `app/` | Tek Flask uygulaması: UI, pipeline API’leri ve yerel LCA route’ları. |
-| **Servisler** | `services/` | Dahili LCA ve raporlama modülleri. |
+| **Servisler** | `services/` | Dahili LCA modülleri. |
 | **Yardımcılar** | `utils/` | Tek seferlik yardımcı betikler ve şablon üreticiler. |
 
 ---
@@ -123,8 +123,7 @@ teknofest_arastirma/
 ├── core/
 ├── app/
 ├── services/
-│   ├── lca/
-│   └── reporter/
+│   └── lca/
 ├── optimization/
 ├── pipeline/
 ├── utils/

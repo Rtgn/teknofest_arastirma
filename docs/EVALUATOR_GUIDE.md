@@ -25,7 +25,6 @@ Depo, açık sorumluluklara sahip modüllere ayrılmıştır:
 - `core/`: business rules and reusable logic
 - `pipeline/`: monthly and scenario workflows
 - `services/lca/`: local LCA logic and lightweight SQLite-backed profiles/factors
-- `services/reporter/`: report-generation utilities
 - `data_schemas/templates/`: input templates
 - `outputs/runtime/`: generated working files
 

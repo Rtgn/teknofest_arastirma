@@ -5,7 +5,6 @@ Uygulama ve pipeline tarafından kullanılan iç servis modülleri.
 ## Alt Klasörler
 
 - `lca/`: yerel yaşam döngüsü değerlendirmesi hesapları, veritabanı modelleri ve ilklendirme
-- `reporter/`: rapor üretim mantığı, prompt dosyaları ve LLM odaklı yardımcılar
 
 ## Amaç
 
