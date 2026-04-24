@@ -3,17 +3,18 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+**/__pycache__/
 
 # Local databases
 *.db
 
 # Repo runtime/generated files
-symbiosis_v2/outputs/runtime/*
-!symbiosis_v2/outputs/runtime/README.md
+outputs/runtime/*
+!outputs/runtime/README.md
 
 # Generated reports
-symbiosis_v2/services/reporter/reports/*
-!symbiosis_v2/services/reporter/reports/.gitkeep
+services/reporter/reports/*
+!services/reporter/reports/.gitkeep
 
 # GAMS artifacts
 *.gdx

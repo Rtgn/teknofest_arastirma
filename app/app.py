@@ -1,6 +1,6 @@
 """
 Symbiosis v2 Flask uygulaması: UI + pipeline + yerel LCA API.
-Çalıştırma: symbiosis_v2 kökünden: python -m app.app
+Çalıştırma: repo kökünden: python -m app.app
 """
 
 from __future__ import annotations
@@ -40,6 +40,26 @@ from services.lca.database import SessionLocal
 from services.lca.init_db import init_db
 from services.lca.models import EmissionFactor, ProcessLCAProfile
 
+BASE_PERIOD_RE = re.compile(r"^\d{4}-\d{2}$")
+VALID_NETWORK_SOURCES = {"matches_lca", "selected"}
+PROFILE_FIELDS = (
+    "energy_kwh_per_ton",
+    "water_m3_per_ton",
+    "chemical_kg_per_ton",
+    "recovery_efficiency",
+)
+FACTOR_FIELDS = ("resource_type", "co2_per_unit", "unit", "description")
+CORE_PIPELINE_FILES = (
+    "factories.xlsx",
+    "processes.xlsx",
+    "waste_streams.xlsx",
+    "waste_process_links.xlsx",
+    "matches_LCA_ready.xlsx",
+    "ewc_nace_map.csv",
+    "process_capacity.csv",
+    "selected_matches.csv",
+)
+
 app = Flask(
     __name__,
     template_folder=str(_WEB_ROOT / "templates"),
@@ -47,6 +67,44 @@ app = Flask(
     static_url_path="/static",
 )
 init_db()
+
+
+def _base_periods() -> list[str]:
+    return [p for p in list_periods_from_runtime() if BASE_PERIOD_RE.match(str(p))]
+
+
+def _json_body() -> dict:
+    return request.get_json(force=True, silent=True) or {}
+
+
+def _result_response(payload: dict) -> tuple:
+    return jsonify(payload), (200 if payload.get("status") == "success" else 500)
+
+
+def _normalize_network_source() -> str:
+    source = request.args.get("source", "matches_lca")
+    return source if source in VALID_NETWORK_SOURCES else "matches_lca"
+
+
+def _serialize_profile(profile: ProcessLCAProfile) -> dict[str, object]:
+    return {"process_id": profile.process_id, **{field: getattr(profile, field) for field in PROFILE_FIELDS}}
+
+
+def _serialize_factor(factor: EmissionFactor) -> dict[str, object]:
+    return {field: getattr(factor, field) for field in FACTOR_FIELDS}
+
+
+def _pipeline_files_info(rt: Path) -> list[dict[str, object]]:
+    if not rt.is_dir():
+        return []
+    files_info = [{"name": name, "exists": (rt / name).is_file()} for name in CORE_PIPELINE_FILES]
+    seen = {item["name"] for item in files_info}
+    files_info.extend(
+        {"name": path.name, "exists": True}
+        for path in sorted(rt.glob("matches_LCA_*.xlsx"))
+        if path.name not in seen and "eski" not in path.name.lower()
+    )
+    return files_info
 
 
 @app.route("/")
@@ -77,16 +135,12 @@ def network_page():
 
 @app.route("/simulation")
 def simulation_page():
-    all_p = list_periods_from_runtime()
-    base_periods = [p for p in all_p if re.match(r"^\d{4}-\d{2}$", str(p))]
-    return render_template("simulation.html", base_periods=base_periods)
+    return render_template("simulation.html", base_periods=_base_periods())
 
 
 @app.route("/monthly-data")
 def monthly_data_page():
-    all_p = list_periods_from_runtime()
-    base_periods = [p for p in all_p if re.match(r"^\d{4}-\d{2}$", str(p))]
-    return render_template("monthly_data.html", base_periods=base_periods, runtime_path=str(runtime_dir()))
+    return render_template("monthly_data.html", base_periods=_base_periods(), runtime_path=str(runtime_dir()))
 
 
 @app.route("/api/monthly-inputs", methods=["GET"])
@@ -96,7 +150,7 @@ def api_monthly_inputs_get():
 
 @app.route("/api/monthly-inputs", methods=["POST"])
 def api_monthly_inputs_save():
-    data = request.get_json(force=True, silent=True) or {}
+    data = _json_body()
     rt = runtime_dir()
     try:
         if data.get("factory_status"):
@@ -133,7 +187,7 @@ def api_monthly_inputs_formula():
 def api_monthly_pipeline_run():
     from pipeline.monthly import run_monthly_pipeline
 
-    data = request.get_json(force=True, silent=True) or {}
+    data = _json_body()
     period = (data.get("period") or "").strip()
     if not period:
         return jsonify({"status": "failed", "error": "period (YYYY-MM) gerekli"}), 400
@@ -141,8 +195,7 @@ def api_monthly_pipeline_run():
         out = run_monthly_pipeline(period, triggered_by="api_monthly_ui")
     except Exception as e:
         return jsonify({"status": "failed", "error": str(e)}), 500
-    code = 200 if out.get("status") == "success" else 500
-    return jsonify(out), code
+    return _result_response(out)
 
 
 @app.route("/api/simulation/baseline/<period>")
@@ -154,7 +207,7 @@ def api_simulation_baseline(period: str):
 def api_simulation_run():
     from pipeline.digital_twin import run_digital_twin_simulation
 
-    data = request.get_json(force=True, silent=True) or {}
+    data = _json_body()
     base_period = (data.get("period") or "").strip()
     if not base_period:
         return jsonify({"status": "failed", "error": "period (YYYY-MM) gerekli"}), 400
@@ -169,16 +222,12 @@ def api_simulation_run():
         out = run_digital_twin_simulation(base_period, payload)
     except Exception as e:
         return jsonify({"status": "failed", "error": str(e)}), 500
-    code = 200 if out.get("status") == "success" else 500
-    return jsonify(out), code
+    return _result_response(out)
 
 
 @app.route("/api/network/<period>")
 def api_network(period: str):
-    source = request.args.get("source", "matches_lca")
-    if source not in ("matches_lca", "selected"):
-        source = "matches_lca"
-    return jsonify(build_network_payload(period, source=source))
+    return jsonify(build_network_payload(period, source=_normalize_network_source()))
 
 
 @app.route("/api/periods")
@@ -189,35 +238,7 @@ def api_periods():
 @app.route("/pipeline")
 def pipeline_page():
     rt = runtime_dir()
-    files_info: list[dict] = []
-    seen: set[str] = set()
-    if rt.is_dir():
-        core = [
-            "factories.xlsx",
-            "processes.xlsx",
-            "waste_streams.xlsx",
-            "waste_process_links.xlsx",
-            "matches_LCA_ready.xlsx",
-            "ewc_nace_map.csv",
-            "process_capacity.csv",
-            "selected_matches.csv",
-        ]
-        for name in core:
-            p = rt / name
-            files_info.append(
-                {
-                    "name": name,
-                    "exists": p.is_file(),
-                }
-            )
-            seen.add(name)
-        for p in sorted(rt.glob("matches_LCA_*.xlsx")):
-            if p.name in seen:
-                continue
-            if "eski" in p.name.lower():
-                continue
-            files_info.append({"name": p.name, "exists": True})
-    return render_template("pipeline.html", runtime=str(rt), files_info=files_info)
+    return render_template("pipeline.html", runtime=str(rt), files_info=_pipeline_files_info(rt))
 
 
 @app.route("/api/lca")
@@ -229,19 +250,7 @@ def api_lca_root():
 def api_lca_profiles():
     db = SessionLocal()
     try:
-        profiles = db.query(ProcessLCAProfile).all()
-        return jsonify(
-            [
-                {
-                    "process_id": p.process_id,
-                    "energy_kwh_per_ton": p.energy_kwh_per_ton,
-                    "water_m3_per_ton": p.water_m3_per_ton,
-                    "chemical_kg_per_ton": p.chemical_kg_per_ton,
-                    "recovery_efficiency": p.recovery_efficiency,
-                }
-                for p in profiles
-            ]
-        )
+        return jsonify([_serialize_profile(profile) for profile in db.query(ProcessLCAProfile).all()])
     finally:
         db.close()
 
@@ -253,31 +262,21 @@ def api_lca_profile(process_id: str):
         profile = db.query(ProcessLCAProfile).filter_by(process_id=process_id).first()
         if not profile:
             return jsonify({"detail": "Proses LCA Profili bulunamadi."}), 404
-        return jsonify(
-            {
-                "process_id": profile.process_id,
-                "energy_kwh_per_ton": profile.energy_kwh_per_ton,
-                "water_m3_per_ton": profile.water_m3_per_ton,
-                "chemical_kg_per_ton": profile.chemical_kg_per_ton,
-                "recovery_efficiency": profile.recovery_efficiency,
-            }
-        )
+        return jsonify(_serialize_profile(profile))
     finally:
         db.close()
 
 
 @app.route("/api/lca/profiles/<process_id>", methods=["PUT"])
 def api_lca_profile_update(process_id: str):
-    data = request.get_json(force=True, silent=True) or {}
+    data = _json_body()
     db = SessionLocal()
     try:
         profile = db.query(ProcessLCAProfile).filter_by(process_id=process_id).first()
         if not profile:
             return jsonify({"detail": "Bulunamadi."}), 404
-        profile.energy_kwh_per_ton = float(data.get("energy_kwh_per_ton", profile.energy_kwh_per_ton))
-        profile.water_m3_per_ton = float(data.get("water_m3_per_ton", profile.water_m3_per_ton))
-        profile.chemical_kg_per_ton = float(data.get("chemical_kg_per_ton", profile.chemical_kg_per_ton))
-        profile.recovery_efficiency = float(data.get("recovery_efficiency", profile.recovery_efficiency))
+        for field in PROFILE_FIELDS:
+            setattr(profile, field, float(data.get(field, getattr(profile, field))))
         db.commit()
         return jsonify({"message": "Profil guncellendi.", "process_id": process_id})
     finally:
@@ -288,25 +287,14 @@ def api_lca_profile_update(process_id: str):
 def api_lca_emission_factors():
     db = SessionLocal()
     try:
-        factors = db.query(EmissionFactor).all()
-        return jsonify(
-            [
-                {
-                    "resource_type": f.resource_type,
-                    "co2_per_unit": f.co2_per_unit,
-                    "unit": f.unit,
-                    "description": f.description,
-                }
-                for f in factors
-            ]
-        )
+        return jsonify([_serialize_factor(factor) for factor in db.query(EmissionFactor).all()])
     finally:
         db.close()
 
 
 @app.route("/api/lca/calculate_lca/batch", methods=["POST"])
 def api_lca_batch():
-    payload = request.get_json(force=True, silent=True) or {}
+    payload = _json_body()
     matches = payload.get("matches") or []
     db = SessionLocal()
     try:
@@ -331,9 +319,7 @@ def api_lca_batch():
 @app.route("/api/network_graph/<period>")
 def api_network_graph_html(period: str):
     """PyVis ile süreç/atık/fabrika düğümleri (isteğe bağlı bağımlılık)."""
-    source = request.args.get("source", "matches_lca")
-    if source not in ("matches_lca", "selected"):
-        source = "matches_lca"
+    source = _normalize_network_source()
     try:
         import networkx as nx
         from pyvis.network import Network

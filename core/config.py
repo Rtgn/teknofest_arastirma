@@ -7,7 +7,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-# symbiosis_v2 kökü (bu dosya: symbiosis_v2/core/config.py)
+# Proje kökü (bu dosya: core/config.py)
 PACKAGE_ROOT: Path = Path(__file__).resolve().parent.parent
 BASE_DIR: Path = PACKAGE_ROOT  # alias
 

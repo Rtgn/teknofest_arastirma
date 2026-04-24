@@ -1,4 +1,4 @@
-# Veri sözlüğü — symbiosis_v2
+# Veri sözlüğü — teknofest_arastirma
 
 Kolon adları **Python pipeline** (`generate_monthly_data_3step` ile uyumlu), **GAMS GDX** (`gams_doc._build_and_write_gdx`) ve **ORM** (`webapp/models`) ile aynı isimlendirme düzenini hedefler.
 

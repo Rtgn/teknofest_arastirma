@@ -5,7 +5,7 @@
 {% block content %}
 <p style="color:var(--text-secondary);font-size:14px;max-width:720px;line-height:1.6;">
   Bu arayüz <strong>salt okunur</strong> özet sunar. Aylık üretim, LCA ve GAMS adımları
-  <code>symbiosis_v2</code> Python pipeline ile çalışır; çıktılar aşağıdaki dizine yazılır.
+  proje Python pipeline ile çalışır; çıktılar aşağıdaki dizine yazılır.
 </p>
 <p class="code-path"><strong>Kök:</strong> <code>{{ runtime }}</code></p>
 
@@ -33,8 +33,7 @@
 
 <div class="empty-state chart-card" style="margin-top:20px;text-align:left;max-width:720px;">
   <p><strong>Önerilen komut</strong> (aylık koşu):</p>
-  <pre style="margin-top:12px;padding:16px;background:rgba(0,0,0,0.25);border-radius:12px;font-size:12px;overflow:auto;">cd symbiosis_v2
-python -m pipeline.monthly  # veya API'niz nasıl çağırıyorsa</pre>
+  <pre style="margin-top:12px;padding:16px;background:rgba(0,0,0,0.25);border-radius:12px;font-size:12px;overflow:auto;">python -m pipeline.monthly  # veya API'niz nasıl çağırıyorsa</pre>
   <p style="margin-top:16px;font-size:13px;">Web sunucusu:</p>
   <pre style="margin-top:8px;padding:16px;background:rgba(0,0,0,0.25);border-radius:12px;font-size:12px;">python -m app.app</pre>
   <p class="code-path" style="margin-top:12px;">Sonra tarayıcı: <code>http://127.0.0.1:5050</code></p>

@@ -1,7 +1,7 @@
 """
 outputs/runtime/waste_streams.xlsx icindeki tum benzersiz ewc_code degerlerini listeler.
 
-Kullanim (symbiosis_v2 dizininden):
+Kullanim (repo kokunden):
   python -m utils.list_unique_ewc_codes
   python -m utils.list_unique_ewc_codes --runtime path/to/outputs/runtime
 """

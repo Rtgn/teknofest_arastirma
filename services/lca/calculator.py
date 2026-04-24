@@ -1,47 +1,61 @@
+import os
+
+import pandas as pd
 from sqlalchemy.orm import Session
+
 from core.config import RUNTIME_DIR
 
-from .models import ProcessLCAProfile, EmissionFactor
-import pandas as pd
-import os
+from .models import EmissionFactor, ProcessLCAProfile
 
 # Mevcut eski kaynak emisyonlarını global olarak yükleyelim ki
 # tamamen bağımsız çalışabilsin
 BASE_DIR = str(RUNTIME_DIR)
+DEFAULT_RECOVERY = {"Recovery Rate": 0.8, "Target Resource Type": "Unknown"}
+FALLBACK_PROFILE = {
+    "energy_kwh_per_ton": 50.0,
+    "water_m3_per_ton": 1.5,
+    "chemical_kg_per_ton": 0.2,
+    "recovery_efficiency": 0.85,
+}
+TRANSPORT_COST_PER_TON_KM = 0.1
+PROCESSING_COST_PER_KWH = 0.2
+AVOIDED_DISPOSAL_CO2_PER_TON = 120.0
 
-def load_legacy_factors():
+
+def _read_legacy_excel(filename: str, builder):
     try:
-        eff = pd.read_excel(os.path.join(BASE_DIR, "resource_emission.xlsx"))
-        return dict(zip(eff["resource_type"], eff["emission_factor_kg_co2_per_unit"]))
-    except:
+        return builder(pd.read_excel(os.path.join(BASE_DIR, filename)))
+    except Exception:
         return {}
 
-def load_waste_recovery_legacy():
-    try:
-        wr = pd.read_excel(os.path.join(BASE_DIR, "waste_recovery.xlsx"))
-        return wr.set_index("Waste ID")[["Recovery Rate", "Target Resource Type"]].to_dict("index")
-    except:
-        return {}
-
-def load_economic_legacy():
-    try:
-        ru = pd.read_excel(os.path.join(BASE_DIR, "resource_use.xlsx"))
-        return dict(zip(ru["resource_type"], ru["cost_per_unit"]))
-    except:
-        return {}
-
-def load_disposal_cost_legacy():
-    try:
-        wm = pd.read_excel(os.path.join(BASE_DIR, "waste_streams.xlsx"))
-        return dict(zip(wm["waste_id"], wm["disposal_cost_per_ton"]))
-    except:
-        return {}
 
 # RAM'e al
-LEGACY_EMISSIONS = load_legacy_factors()
-LEGACY_RECOVERY = load_waste_recovery_legacy()
-LEGACY_PRICES = load_economic_legacy()
-LEGACY_DISPOSAL = load_disposal_cost_legacy()
+LEGACY_EMISSIONS = _read_legacy_excel(
+    "resource_emission.xlsx",
+    lambda df: dict(zip(df["resource_type"], df["emission_factor_kg_co2_per_unit"])),
+)
+LEGACY_RECOVERY = _read_legacy_excel(
+    "waste_recovery.xlsx",
+    lambda df: df.set_index("Waste ID")[["Recovery Rate", "Target Resource Type"]].to_dict("index"),
+)
+LEGACY_PRICES = _read_legacy_excel(
+    "resource_use.xlsx",
+    lambda df: dict(zip(df["resource_type"], df["cost_per_unit"])),
+)
+LEGACY_DISPOSAL = _read_legacy_excel(
+    "waste_streams.xlsx",
+    lambda df: dict(zip(df["waste_id"], df["disposal_cost_per_ton"])),
+)
+
+
+def _fallback_profile() -> ProcessLCAProfile:
+    return ProcessLCAProfile(**FALLBACK_PROFILE)
+
+
+def _emission_factor(db: Session, resource_type: str, default: float) -> float:
+    factor = db.query(EmissionFactor).filter_by(resource_type=resource_type).first()
+    return factor.co2_per_unit if factor else default
+
 
 def calculate_lca(
     db: Session,
@@ -62,34 +76,25 @@ def calculate_lca(
     waste_amount_ton = waste_amount_kg / 1000.0 if waste_amount_kg else 0.0
 
     # 1. Profil ve Faktörleri Çek
-    profile = db.query(ProcessLCAProfile).filter_by(process_id=process_id).first()
-    if not profile:
-        # Fallback profile
-        profile = ProcessLCAProfile(
-            energy_kwh_per_ton=50.0, water_m3_per_ton=1.5, chemical_kg_per_ton=0.2, recovery_efficiency=0.85
-        )
-
-    t_factor = db.query(EmissionFactor).filter_by(resource_type=transport_mode).first()
-    transport_co2_kg_per_ton_km = t_factor.co2_per_unit if t_factor else 0.089  # EEA Road Freight 2023
-
-    e_factor = db.query(EmissionFactor).filter_by(resource_type="electricity").first()
-    grid_co2 = e_factor.co2_per_unit if e_factor else 0.42
+    profile = db.query(ProcessLCAProfile).filter_by(process_id=process_id).first() or _fallback_profile()
+    transport_co2_kg_per_ton_km = _emission_factor(db, transport_mode, 0.089)  # EEA Road Freight 2023
+    grid_co2 = _emission_factor(db, "electricity", 0.42)
 
     # 2. Önlenen Bertaraf (Avoided Disposal)
     # IPCC AR6 Landfill emisyon faktörü: depolama alanı metan (CH4) + sızdırma
     # ~100-140 kg CO2e/ton aralığı → merkezi değer 120 kullanılıyor
-    avoided_disposal_co2 = waste_amount_ton * 120.0  # kg CO2e/ton (IPCC AR6)
-    disposal_cost_saving = waste_amount_ton * LEGACY_DISPOSAL.get(waste_id, 50.0) # Ton başı bertaraf kurtarımı
+    avoided_disposal_co2 = waste_amount_ton * AVOIDED_DISPOSAL_CO2_PER_TON  # kg CO2e/ton (IPCC AR6)
+    disposal_cost_saving = waste_amount_ton * LEGACY_DISPOSAL.get(waste_id, 50.0)  # Ton başı bertaraf kurtarımı
 
     # 3. Geri Kazanım ve Önlenen Hammadde (Recovery & Avoided Virgin Material)
-    rec_info = LEGACY_RECOVERY.get(waste_id, {"Recovery Rate": 0.8, "Target Resource Type": "Unknown"})
+    rec_info = LEGACY_RECOVERY.get(waste_id, DEFAULT_RECOVERY)
     # Verimi profile the bağla: (Veritabanındaki verim * Exceldeki rate)
     eff = profile.recovery_efficiency
     final_recovery_rate = rec_info["Recovery Rate"] * eff
     recovered_amount_kg = waste_amount_kg * final_recovery_rate
 
     target_res = rec_info["Target Resource Type"]
-    res_co2_factor = LEGACY_EMISSIONS.get(target_res, 0.0) # Virgin material CO2
+    res_co2_factor = LEGACY_EMISSIONS.get(target_res, 0.0)  # Virgin material CO2
 
     avoided_virgin_co2 = recovered_amount_kg * res_co2_factor
 
@@ -111,8 +116,8 @@ def calculate_lca(
     res_price = LEGACY_PRICES.get(target_res, 0.5)
     recovered_value = recovered_amount_kg * res_price
     
-    transport_cost = waste_amount_ton * distance_km * 0.1 # 0.1$/ton-km
-    processing_cost = processing_energy_kwh * 0.2         # 0.2$/kWh
+    transport_cost = waste_amount_ton * distance_km * TRANSPORT_COST_PER_TON_KM
+    processing_cost = processing_energy_kwh * PROCESSING_COST_PER_KWH
 
     profit = (recovered_value + disposal_cost_saving) - (transport_cost + processing_cost)
 

@@ -1,4 +1,4 @@
-# symbiosis_v2 — Mimari Özeti
+# teknofest_arastirma — Mimari Özeti
 
 Bu belge, OSB ölçeğinde **endüstriyel simbiyoz** karar destek sisteminin v2 çekirdeğini anlatır: LCA tabanlı çevresel/ekonomik metrikler, bileşik skorlar ve **GAMS** ile binary seçim optimizasyonu. Eski `tk_arastirma` deposundaki bilimsel hedef korunur; kod ve veri düzeni sadeleştirilir.
 
@@ -120,7 +120,7 @@ Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 ## 8. Klasör ağacı (özet)
 
 ```
-symbiosis_v2/
+teknofest_arastirma/
 ├── core/
 ├── app/
 ├── services/
