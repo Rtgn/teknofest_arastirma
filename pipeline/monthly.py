@@ -192,11 +192,11 @@ def placeholder_process_metadata_for_scoring(
     return merged
 
 
-def _read_optional_excel(runtime: Path, name: str) -> Optional[pd.DataFrame]:
+def _read_optional_table(runtime: Path, name: str) -> Optional[pd.DataFrame]:
     p = runtime / name
     if not p.is_file():
         return None
-    return pd.read_excel(p)
+    return pd.read_csv(p) if p.suffix.lower() == ".csv" else pd.read_excel(p)
 
 
 def run_monthly_pipeline(
@@ -210,18 +210,18 @@ def run_monthly_pipeline(
     """
     `outputs/runtime/` altindaki girdilerle aylik uretim.
 
-    **Sıra:** (1) `waste_process_links.xlsx` otomatik üretimi (üç temel dosya varsa),
-    (2) `matches_LCA_ready.xlsx` — symbiosis dörtlemesi tam ise otomatik üretilir.
+    **Sıra:** (1) `waste_process_links.csv` otomatik üretimi (üç temel dosya varsa),
+    (2) `matches_LCA_ready.csv` — symbiosis dörtlemesi tam ise otomatik üretilir.
     `SYMBIOSIS_SKIP_WASTE_LINKS_AUTOGEN=1` ile (1) atlanır.
 
     Ortam: `SYMBIOSIS_STRICT_MATCHES=1` → yalnızca symbiosis dörtlemesi ile üretim zorunlu.
     Varsayılan: self-simbiyoz kapalı. ``SYMBIOSIS_ALLOW_SELF_SYMBIOSIS=1`` ile aynı fabrika içi eşleşmelere izin verilir.
 
-    Gerekli dosyalar (runtime): matches_LCA_ready.xlsx (veya yukarıdaki dört dosya),
-    factory_status.xlsx, process_status.xlsx, process_capacity.csv, waste_streams.xlsx,
-    capacity_factors.xlsx
+    Gerekli dosyalar (runtime): matches_LCA_ready.csv (veya yukarıdaki dört dosya),
+    factory_status.csv, process_status.csv, process_capacity.csv, waste_streams.csv,
+    capacity_factors.csv
 
-    İsteğe bağlı: waste_coefficients.xlsx, process_metadata.xlsx
+    İsteğe bağlı: waste_coefficients.csv, process_metadata.csv
     """
     runtime = Path(runtime_dir or RUNTIME_DIR)
     runtime.mkdir(parents=True, exist_ok=True)
@@ -248,18 +248,18 @@ def run_monthly_pipeline(
     _, current_month = parse_period(period)
 
     try:
-        matches = pd.read_excel(runtime / "matches_LCA_ready.xlsx")
-        factory_status = pd.read_excel(runtime / "factory_status.xlsx")
-        process_status = pd.read_excel(runtime / "process_status.xlsx")
+        matches = pd.read_csv(runtime / "matches_LCA_ready.csv")
+        factory_status = pd.read_csv(runtime / "factory_status.csv")
+        process_status = pd.read_csv(runtime / "process_status.csv")
         process_capacity = pd.read_csv(runtime / "process_capacity.csv", sep=";", decimal=",")
-        waste_streams = pd.read_excel(runtime / "waste_streams.xlsx")
-        capacity_factors_df = pd.read_excel(runtime / "capacity_factors.xlsx")
+        waste_streams = pd.read_csv(runtime / "waste_streams.csv")
+        capacity_factors_df = pd.read_csv(runtime / "capacity_factors.csv")
     except Exception as e:
         return {"status": "failed", "period": period, "error": f"Girdi okunamadı: {e}"}
 
-    processes = _read_optional_excel(runtime, "processes.xlsx")
-    waste_coeff = _read_optional_excel(runtime, "waste_coefficients.xlsx")
-    process_metadata = _read_optional_excel(runtime, "process_metadata.xlsx")
+    processes = _read_optional_table(runtime, "processes.csv")
+    waste_coeff = _read_optional_table(runtime, "waste_coefficients.csv")
+    process_metadata = _read_optional_table(runtime, "process_metadata.csv")
 
     aux_ids = auxiliary_process_ids(processes) if processes is not None else set()
     matches = filter_auxiliary_from_matches(matches, aux_ids)
@@ -378,25 +378,25 @@ def run_monthly_pipeline(
 
     out_matches_name = matches_lca_filename(period)
     out_matches_path = runtime / out_matches_name
-    matches.to_excel(out_matches_path, index=False)
+    matches.to_csv(out_matches_path, index=False)
 
     cap_out = process_capacity[["process_id", "capacity_monthly"]]
     cap_path = runtime / process_capacity_monthly_filename(period)
-    cap_out.to_excel(cap_path, index=False)
+    cap_out.to_csv(cap_path, index=False)
 
     osb_limit = float(process_capacity["capacity_monthly"].sum())
     with open(runtime / "osb_limit.txt", "w", encoding="utf-8") as f:
         f.write(f"OSB_Limit = {osb_limit};")
 
-    df_raw = pd.read_excel(out_matches_path)
+    df_raw = pd.read_csv(out_matches_path)
     df_clean, clean_report = clean_matches(df_raw)
-    df_excel_out = df_clean.copy()
+    df_final = df_clean.copy()
     for _ffc in ("source_factory", "target_factory"):
-        if _ffc in df_excel_out.columns:
-            df_excel_out[_ffc] = df_excel_out[_ffc].map(
+        if _ffc in df_final.columns:
+            df_final[_ffc] = df_final[_ffc].map(
                 lambda x: format_factory_id(x) if parse_factory_id(x) is not None else x
             )
-    df_excel_out.to_excel(out_matches_path, index=False)
+    df_final.to_csv(out_matches_path, index=False)
 
     milp_report: Optional[dict[str, Any]] = None
     try:

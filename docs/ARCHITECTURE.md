@@ -60,7 +60,7 @@ Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 2. **Proses sınıflandırma:** `processes.is_auxiliary_process = 1` olan `process_id` değerleri **eşleşme adayları** ve **process_capacity** toplamlarından çıkarılır (`filter_auxiliary_from_*`, `auxiliary_process_ids`).
 3. **Atık miktarı:** `waste_amount_base` → `waste_amount_monthly` (kg/ay); `waste_coefficients.kg_per_ton_min` / `kg_per_ton_max` doluysa aylık akışa **mutlak kg sınırı** olarak kırpma uygulanır (`compute_waste_amount_monthly_column`, `apply_waste_kg_min_max`).
 4. **Skor yer tutucu:** `process_metadata` ile `process_id` birleştirilir; BREF aralıklarından türetilecek ceza/ödül sütunları için `placeholder_process_metadata_for_scoring` (şimdilik 0; gerçek formül `core/scoring.py`).
-5. **Türetim:** `matches_LCA_{YYYY-MM}.xlsx`, `process_capacity_monthly_{YYYY-MM}.xlsx`, `osb_limit.txt`.
+5. **Türetim:** `matches_LCA_{YYYY-MM}.csv`, `process_capacity_monthly_{YYYY-MM}.csv`, `osb_limit.txt`.
 6. **LCA:** `core/lca_client.py` batch.
 7. **Temizlik:** `core/data_cleaning.py`.
 8. **Optimizasyon:** `optimization/pulp_symbiosis.py` → `result_reader.py`.
@@ -72,7 +72,7 @@ Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 
 1. **Baz:** Belirli bir `YYYY-MM` için üretilmiş `matches_LCA_*` ve `process_capacity_monthly_*` (dosya veya bellek).
 2. **Atık min–max (senaryo):** `ScenarioWasteBounds` — global ve/veya `waste_id` başına `min`/`max` kg/ay; `apply_scenario_waste_bounds` ile `waste_amount_monthly` güncellenir (üretimdeki kırpmadan ayrı veya üzerine senaryo katmanı).
-3. **Emisyon limitleri raporu:** `bref_emission_limits.xlsx` (veya DataFrame) `emission_limits_report` ile senaryo çıktısına eklenir (`limits`, `scenario_id`, `base_period`).
+3. **Emisyon limitleri raporu:** `bref_emission_limits.csv` (veya DataFrame) `emission_limits_report` ile senaryo çıktısına eklenir (`limits`, `scenario_id`, `base_period`).
 4. **Modifikasyon:** Atık çarpanı, kapasite çarpanı, satır eleme, LCA yeniden koşumu (v1 ile aynı fikir).
 5. **Skor + temizlik:** Üretim ile aynı fonksiyonlar; ağırlıklar senaryoya göre değişebilir.
 6. **MILP:** Ayrı çalışma dizini (`scenario_runs/{id}/` benzeri).
@@ -112,7 +112,7 @@ Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 - `processes_template.xlsx`: `is_auxiliary_process` (0/1) — yardımcı proses; kapasite ve eşleşme üretiminde hariç tutulur.
 - `waste_coefficients_template.xlsx`: `kg_per_ton_min`, `kg_per_ton_max` (aylık kg kırpımı için), `recovery_method`, `potential_industrial_symbiosis`, `notes`.
 
-Çalışma anında üretilen dosya adları (v1 ile uyum): `matches_LCA_{YYYY-MM}.xlsx`, `process_capacity_monthly_{YYYY-MM}.xlsx`, `selected_matches_{YYYY-MM}.xlsx` — bunlar şablon değil **çıktı** kabul edilir ve `outputs/runtime/` altında tutulur.
+Çalışma anında üretilen dosya adları (v1 ile uyum): `matches_LCA_{YYYY-MM}.csv`, `process_capacity_monthly_{YYYY-MM}.csv`, `selected_matches_{YYYY-MM}.csv` — bunlar şablon değil **çıktı** kabul edilir ve `outputs/runtime/` altında tutulur.
 
 ---
 

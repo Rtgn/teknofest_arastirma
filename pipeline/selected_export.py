@@ -64,5 +64,5 @@ def filter_selected_matches(
     path = out_path or (Path(".") / selected_matches_filename(period))
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    selected_clean.to_excel(path, index=False)
+    selected_clean.to_csv(path, index=False)
     return selected_clean

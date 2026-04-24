@@ -51,14 +51,15 @@ PROFILE_FIELDS = (
 )
 FACTOR_FIELDS = ("resource_type", "co2_per_unit", "unit", "description")
 CORE_PIPELINE_FILES = (
-    "factories.xlsx",
-    "processes.xlsx",
-    "waste_streams.xlsx",
-    "waste_process_links.xlsx",
-    "matches_LCA_ready.xlsx",
-    "ewc_nace_map.csv",
+    "factories.csv",
+    "processes.csv",
+    "waste_streams.csv",
+    "waste_process_links.csv",
+    "capacity_factors.csv",
+    "factory_status.csv",
+    "process_status.csv",
     "process_capacity.csv",
-    "selected_matches.csv",
+    "process_metadata.csv",
 )
 
 app = Flask(
@@ -116,7 +117,7 @@ def _pipeline_files_info(rt: Path) -> list[dict[str, object]]:
     seen = {item["name"] for item in files_info}
     files_info.extend(
         {"name": path.name, "exists": True}
-        for path in sorted(rt.glob("matches_LCA_*.xlsx"))
+        for path in sorted(rt.glob("matches_LCA_*.csv"))
         if path.name not in seen and "eski" not in path.name.lower()
     )
     return files_info

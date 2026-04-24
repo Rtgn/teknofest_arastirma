@@ -1,5 +1,5 @@
 """
-factories + processes + waste_streams + waste_process_links → matches_LCA_ready.xlsx
+factories + processes + waste_streams + waste_process_links → matches_LCA_ready.csv
 
 Eski projeden kopyalanmış eşleşme dosyası yerine, güncel OSB verisiyle üretim.
 """
@@ -20,10 +20,10 @@ logger = logging.getLogger(__name__)
 EARTH_RADIUS_KM = 6371.0
 
 SYMBIOSIS_BUNDLE_FILES = (
-    "factories.xlsx",
-    "processes.xlsx",
-    "waste_streams.xlsx",
-    "waste_process_links.xlsx",
+    "factories.csv",
+    "processes.csv",
+    "waste_streams.csv",
+    "waste_process_links.csv",
 )
 
 
@@ -31,9 +31,11 @@ def symbiosis_bundle_complete(runtime: Path) -> bool:
     return all((runtime / f).is_file() for f in SYMBIOSIS_BUNDLE_FILES)
 
 
-def _read_excel(path: Path) -> pd.DataFrame:
+def _read_table(path: Path) -> pd.DataFrame:
     if not path.is_file():
         raise FileNotFoundError(str(path))
+    if path.suffix.lower() == ".csv":
+        return pd.read_csv(path)
     try:
         return pd.read_excel(path, engine="openpyxl")
     except Exception:
@@ -76,8 +78,8 @@ def _is_auxiliary(val: Any) -> bool:
 def _build_matches_from_full_links(runtime: Path, links: pd.DataFrame) -> pd.DataFrame:
     """waste_process_links_generator çıktısı: mesafe/taşıma önceden dolu."""
     if links.empty:
-        raise ValueError("waste_process_links.xlsx boş.")
-    processes = _read_excel(runtime / "processes.xlsx")
+        raise ValueError("waste_process_links.csv boş.")
+    processes = _read_table(runtime / "processes.csv")
     proc = processes.copy()
     proc["process_id"] = proc["process_id"].map(_as_str_id)
     proc = proc[proc["process_id"] != ""].drop_duplicates(subset=["process_id"], keep="last")
@@ -134,7 +136,7 @@ def build_matches_lca_ready_dataframe(runtime: Path) -> pd.DataFrame:
     """
     waste_process_links: geniş şema (generator) veya eski minimal şema (target_process_id + waste_amount_base).
     """
-    links = _read_excel(runtime / "waste_process_links.xlsx")
+    links = _read_table(runtime / "waste_process_links.csv")
 
     if (
         "source_factory_id" in links.columns
@@ -144,32 +146,32 @@ def build_matches_lca_ready_dataframe(runtime: Path) -> pd.DataFrame:
     ):
         return _build_matches_from_full_links(runtime, links)
 
-    factories = _read_excel(runtime / "factories.xlsx")
-    processes = _read_excel(runtime / "processes.xlsx")
-    waste_streams = _read_excel(runtime / "waste_streams.xlsx")
+    factories = _read_table(runtime / "factories.csv")
+    processes = _read_table(runtime / "processes.csv")
+    waste_streams = _read_table(runtime / "waste_streams.csv")
 
     for col in ("id", "lat", "lng"):
         if col not in factories.columns:
-            raise ValueError(f"factories.xlsx içinde '{col}' kolonu gerekli")
+            raise ValueError(f"factories.csv içinde '{col}' kolonu gerekli")
     for col in ("process_id", "factory_id"):
         if col not in processes.columns:
-            raise ValueError(f"processes.xlsx içinde '{col}' kolonu gerekli")
+            raise ValueError(f"processes.csv içinde '{col}' kolonu gerekli")
     for col in ("waste_id", "process_id"):
         if col not in waste_streams.columns:
-            raise ValueError(f"waste_streams.xlsx içinde '{col}' kolonu gerekli (üretici proses: process_id)")
+            raise ValueError(f"waste_streams.csv içinde '{col}' kolonu gerekli (üretici proses: process_id)")
 
     tgt_col = "target_process_id" if "target_process_id" in links.columns else None
     if tgt_col is None and "process_id" in links.columns:
         tgt_col = "process_id"
     if tgt_col is None:
         raise ValueError(
-            "waste_process_links.xlsx içinde hedef proses kolonu gerekli: "
+            "waste_process_links.csv içinde hedef proses kolonu gerekli: "
             "'target_process_id' veya 'process_id'"
         )
     if "waste_id" not in links.columns:
-        raise ValueError("waste_process_links.xlsx içinde 'waste_id' gerekli")
+        raise ValueError("waste_process_links.csv içinde 'waste_id' gerekli")
     if "waste_amount_base" not in links.columns:
-        raise ValueError("waste_process_links.xlsx içinde 'waste_amount_base' (kg/ay) gerekli")
+        raise ValueError("waste_process_links.csv içinde 'waste_amount_base' (kg/ay) gerekli")
 
     fac_map = factories.set_index(factories["id"].astype(int))[
         ["lat", "lng"]
@@ -199,7 +201,7 @@ def build_matches_lca_ready_dataframe(runtime: Path) -> pd.DataFrame:
     if waste_to_source["source_factory"].isna().any():
         bad = waste_to_source.loc[waste_to_source["source_factory"].isna(), "waste_id"].tolist()
         raise ValueError(
-            f"Atık üretici proses processes.xlsx ile eşleşmiyor (waste_id): {bad[:10]}"
+            f"Atık üretici proses processes.csv ile eşleşmiyor (waste_id): {bad[:10]}"
         )
 
     links = links.copy()
@@ -272,9 +274,9 @@ def build_matches_lca_ready_dataframe(runtime: Path) -> pd.DataFrame:
 
 def write_matches_lca_ready(runtime: Path, df: Optional[pd.DataFrame] = None) -> Path:
     runtime.mkdir(parents=True, exist_ok=True)
-    out = runtime / "matches_LCA_ready.xlsx"
+    out = runtime / "matches_LCA_ready.csv"
     data = df if df is not None else build_matches_lca_ready_dataframe(runtime)
-    data.to_excel(out, index=False)
+    data.to_csv(out, index=False)
     logger.info("matches_LCA_ready üretildi: %s (%s satır)", out, len(data))
     return out
 
@@ -285,10 +287,10 @@ def ensure_matches_lca_ready(
     strict_symbiosis_only: bool = False,
 ) -> Optional[str]:
     """
-    Symbiosis dörtlemesi tamamsa matches_LCA_ready.xlsx dosyasını yeniden yazar.
+    Symbiosis dörtlemesi tamamsa matches_LCA_ready.csv dosyasını yeniden yazar.
 
     strict_symbiosis_only=True: yalnızca symbiosis girdisiyle üretim; dosya eksikse hata.
-    strict_symbiosis_only=False: dörtleme varsa üret; yoksa mevcut matches_LCA_ready.xlsx
+    strict_symbiosis_only=False: dörtleme varsa üret; yoksa mevcut matches_LCA_ready.csv
     varsa dokunma; ikisi de yoksa hata mesajı döner.
     """
     runtime = Path(runtime)
@@ -302,15 +304,15 @@ def ensure_matches_lca_ready(
 
     if strict_symbiosis_only:
         return (
-            "strict_symbiosis_only: factories.xlsx, processes.xlsx, waste_streams.xlsx, "
-            "waste_process_links.xlsx dosyalarinin hepsi outputs/runtime icinde olmali."
+            "strict_symbiosis_only: factories.csv, processes.csv, waste_streams.csv, "
+            "waste_process_links.csv dosyalarinin hepsi outputs/runtime icinde olmali."
         )
 
-    if (runtime / "matches_LCA_ready.xlsx").is_file():
-        logger.info("Symbiosis dörtlemesi yok; mevcut matches_LCA_ready.xlsx kullanılıyor.")
+    if (runtime / "matches_LCA_ready.csv").is_file():
+        logger.info("Symbiosis dörtlemesi yok; mevcut matches_LCA_ready.csv kullanılıyor.")
         return None
 
     return (
-        "matches_LCA_ready.xlsx yok. Ya dosyayi el ile koyun ya da su dort dosyayi outputs/runtime/ "
+        "matches_LCA_ready.csv yok. Ya dosyayi el ile koyun ya da su dort dosyayi outputs/runtime/ "
         f"altına ekleyin (otomatik üretim): {', '.join(SYMBIOSIS_BUNDLE_FILES)}"
     )

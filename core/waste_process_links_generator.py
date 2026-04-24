@@ -1,5 +1,5 @@
 """
-factories + processes + waste_streams → waste_process_links.xlsx (kartesyen adaylar).
+factories + processes + waste_streams → waste_process_links.csv (kartesyen adaylar).
 
 Pipeline başında çalıştırılır; `matches_ready_builder` bu dosyadan matches_LCA_ready üretir.
 """
@@ -23,7 +23,7 @@ from core.config import (
 from core.matches_ready_builder import (
     _as_str_id,
     _is_auxiliary,
-    _read_excel,
+    _read_table,
     haversine_km,
 )
 
@@ -43,7 +43,7 @@ def _resolve_factory_column(processes: pd.DataFrame) -> str:
         if "factory" in cl and "id" in cl.replace(" ", ""):
             return c
     raise ValueError(
-        "processes.xlsx içinde fabrika sütunu bulunamadı; "
+        "processes.csv içinde fabrika sütunu bulunamadı; "
         "beklenen: factory_id veya fabrika_id (veya benzeri)."
     )
 
@@ -100,7 +100,7 @@ def _resolve_factories_id_column(factories: pd.DataFrame) -> str:
         if cl in ("id", "no", "#"):
             return c
     raise ValueError(
-        "factories.xlsx içinde fabrika kimlik sütunu yok; beklenen: id veya factory_id / fabrika_id."
+        "factories.csv içinde fabrika kimlik sütunu yok; beklenen: id veya factory_id / fabrika_id."
     )
 
 
@@ -118,7 +118,7 @@ def _resolve_lat_lng_columns(factories: pd.DataFrame) -> tuple[str, str]:
     if "lat" in factories.columns and "lng" in factories.columns:
         return "lat", "lng"
     raise ValueError(
-        "factories.xlsx: enlem/boylam için lat/lng veya latitude/longitude veya enlem/boylam gerekli."
+        "factories.csv: enlem/boylam için lat/lng veya latitude/longitude veya enlem/boylam gerekli."
     )
 
 
@@ -146,7 +146,7 @@ def _coords_or_raise(fac_map: pd.DataFrame, fid: int, *, context: str) -> tuple[
     except KeyError:
         avail = sorted({int(x) for x in fac_map.index.tolist() if pd.notna(x)})[:25]
         raise ValueError(
-            f"{context}: factory_id={fid} factories.xlsx fabrika listesinde yok. "
+            f"{context}: factory_id={fid} factories.csv fabrika listesinde yok. "
             f"processes.factory_id ile factories dosyasındaki kimlik sütunu (id) aynı numaraları kullanmalı. "
             f"Örnek mevcut fabrika id'leri: {avail}"
         ) from None
@@ -160,7 +160,7 @@ def _assert_factory_sets_align(proc: pd.DataFrame, fac_map: pd.DataFrame) -> Non
         return
     if pf.isdisjoint(ff):
         raise ValueError(
-            "processes.xlsx içindeki factory_id değerlerinin hiçbiri factories.xlsx "
+            "processes.csv içindeki factory_id değerlerinin hiçbiri factories.csv "
             "fabrika kimlikleriyle eşleşmiyor.\n"
             f"  processes.factory_id örnekleri: {sorted(pf)[:25]}\n"
             f"  factories id örnekleri: {sorted(ff)[:25]}\n"
@@ -219,30 +219,30 @@ def build_waste_process_links_dataframe(
     """
     Her waste_id için tüm (yardımcı olmayan) hedef proseslerle satır üretir.
 
-    Kaynak proses ``processes.xlsx`` / fabrika koordinatları ile çözülemeyen atık
+    Kaynak proses ``processes.csv`` / fabrika koordinatları ile çözülemeyen atık
     satırları **atlanır** (hata verilmez); yalnızca geçerli kaynaklar için aday üretilir.
     """
     runtime = Path(runtime)
-    factories = _read_excel(runtime / "factories.xlsx")
-    processes = _read_excel(runtime / "processes.xlsx")
-    waste_streams = _read_excel(runtime / "waste_streams.xlsx")
+    factories = _read_table(runtime / "factories.csv")
+    processes = _read_table(runtime / "processes.csv")
+    waste_streams = _read_table(runtime / "waste_streams.csv")
 
     if "process_id" not in processes.columns:
-        raise ValueError("processes.xlsx: process_id gerekli")
+        raise ValueError("processes.csv: process_id gerekli")
     if "waste_id" not in waste_streams.columns or "process_id" not in waste_streams.columns:
-        raise ValueError("waste_streams.xlsx: waste_id, process_id (kaynak) gerekli")
+        raise ValueError("waste_streams.csv: waste_id, process_id (kaynak) gerekli")
     if "physical_state" not in waste_streams.columns:
-        raise ValueError("waste_streams.xlsx: physical_state gerekli")
+        raise ValueError("waste_streams.csv: physical_state gerekli")
 
     try:
         fac_map = _prepare_factories_fac_map(factories)
     except ValueError as e:
-        raise ValueError(f"factories.xlsx: {e}") from e
+        raise ValueError(f"factories.csv: {e}") from e
 
     try:
         proc = _prepare_processes_dataframe(processes)
     except ValueError as e:
-        raise ValueError(f"processes.xlsx fabrika sütunu: {e}") from e
+        raise ValueError(f"processes.csv fabrika sütunu: {e}") from e
 
     _assert_factory_sets_align(proc, fac_map)
 
@@ -273,7 +273,7 @@ def build_waste_process_links_dataframe(
         allow_self_symbiosis_flag = allow_self_symbiosis()
 
     if period:
-        cap_path = runtime / f"process_capacity_monthly_{period}.xlsx"
+        cap_path = runtime / f"process_capacity_monthly_{period}.csv"
         if cap_path.is_file():
             logger.info("İsteğe bağlı kapasite dosyası mevcut (şimdilik yalnızca bilgi): %s", cap_path.name)
 
@@ -294,7 +294,7 @@ def build_waste_process_links_dataframe(
             continue
         if src_proc not in proc_index.index:
             logger.warning(
-                "waste_id=%s: kaynak proses processes.xlsx içinde tanımlı değil (%s), atlanıyor",
+                "waste_id=%s: kaynak proses processes.csv içinde tanımlı değil (%s), atlanıyor",
                 waste_id,
                 src_proc,
             )
@@ -356,9 +356,9 @@ def build_waste_process_links_dataframe(
 
     if not rows_out:
         raise ValueError(
-            "waste_process_links: üretilen satır yok. Kaynaklar için processes.xlsx içinde "
+            "waste_process_links: üretilen satır yok. Kaynaklar için processes.csv içinde "
             "factory_id (veya fabrika_id) dolu olmalı; yinelenen process_id satırlarında "
-            "boş olmayan fabrika değeri tercih edilir. factories.xlsx id ile eşleşmeli."
+            "boş olmayan fabrika değeri tercih edilir. factories.csv id ile eşleşmeli."
         )
 
     df_out = pd.DataFrame(rows_out)
@@ -366,9 +366,9 @@ def build_waste_process_links_dataframe(
     if len(tgt_fac) == 1:
         logger.warning(
             "waste_process_links: Tüm hedef satırlar tek fabrikaya (factory_id=%s). "
-            "Birden fazla hedef tesis için processes.xlsx içinde her alıcı prosesin "
+            "Birden fazla hedef tesis için processes.csv içinde her alıcı prosesin "
             "factory_id / fabrika_id değerini ilgili tesis numarasına güncelleyin; "
-            "bu numaralar factories.xlsx `id` sütunu ile birebir aynı olmalı.",
+            "bu numaralar factories.csv `id` sütunu ile birebir aynı olmalı.",
             int(tgt_fac[0]),
         )
     return df_out
@@ -388,10 +388,10 @@ def write_waste_process_links_excel(
         exclude_same_process=exclude_same_process,
         allow_self_symbiosis_flag=allow_self_symbiosis_flag,
     )
-    out = runtime / "waste_process_links.xlsx"
+    out = runtime / "waste_process_links.csv"
     runtime.mkdir(parents=True, exist_ok=True)
-    df.to_excel(out, index=False)
-    logger.info("waste_process_links.xlsx yazıldı: %s (%s satır)", out, len(df))
+    df.to_csv(out, index=False)
+    logger.info("waste_process_links.csv yazıldı: %s (%s satır)", out, len(df))
     return out
 
 
@@ -403,7 +403,7 @@ def try_generate_waste_process_links(
     allow_self_symbiosis_flag: Optional[bool] = None,
 ) -> Optional[Path]:
     """
-    Gerekli üç dosya varsa waste_process_links.xlsx üretir; aksi halde None.
+    Gerekli üç dosya varsa waste_process_links.csv üretir; aksi halde None.
 
     ``SYMBIOSIS_SKIP_WASTE_LINKS_AUTOGEN=1`` → otomatik üretimi atla (elle düzenlenmiş dosyayı koru).
 
@@ -419,7 +419,7 @@ def try_generate_waste_process_links(
         logger.info("waste_process_links otomatik üretim kapalı (%s)", ENV_SKIP_WASTE_LINKS_AUTOGEN)
         return None
 
-    needed = ("factories.xlsx", "processes.xlsx", "waste_streams.xlsx")
+    needed = ("factories.csv", "processes.csv", "waste_streams.csv")
     if not all((runtime / f).is_file() for f in needed):
         logger.info(
             "waste_process_links otomatik üretim atlandı (eksik: %s)",
@@ -446,14 +446,14 @@ if __name__ == "__main__":
     if str(_V2) not in sys.path:
         sys.path.insert(0, str(_V2))
 
-    p = argparse.ArgumentParser(description="waste_process_links.xlsx üret")
+    p = argparse.ArgumentParser(description="waste_process_links.csv üret")
     p.add_argument(
         "--runtime",
         type=Path,
         default=RUNTIME_DIR,
         help="outputs/runtime dizini",
     )
-    p.add_argument("--period", type=str, default=None, help="process_capacity_monthly_{period}.xlsx için YYYY-MM")
+    p.add_argument("--period", type=str, default=None, help="process_capacity_monthly_{period}.csv için YYYY-MM")
     p.add_argument(
         "--exclude-same-process",
         action="store_true",

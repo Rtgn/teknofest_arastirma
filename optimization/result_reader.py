@@ -86,7 +86,7 @@ def extract_selected_rows(
     Excel'de ``match_id`` sütunu varsa kullanılır; yoksa satır indeksi (eski davranış).
     """
     ids = set(read_selected_match_ids(selected_csv))
-    df = pd.read_excel(matches_excel_path)
+    df = pd.read_csv(matches_excel_path)
     if "match_id" in df.columns:
         key = df["match_id"].map(normalize_match_id)
     else:
@@ -94,5 +94,5 @@ def extract_selected_rows(
     sel = df.loc[key.isin(ids)].copy()
     if selected_raw_out is not None:
         selected_raw_out.parent.mkdir(parents=True, exist_ok=True)
-        sel.to_excel(selected_raw_out, index=False)
+        sel.to_csv(selected_raw_out, index=False)
     return sel

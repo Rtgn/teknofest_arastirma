@@ -1,0 +1,151 @@
+process_id,factory_id,process_name,nace_code,is_auxiliary_process
+P-01,f_1,Metal Çekirdek Şekillendirme (Kesme/Pres),29.32,0.0
+P-02,f_1,Ön İşlem – Alkali Yağ Alma,29.32,0.0
+P-03,f_1,Ön İşlem – Durulama (Kaskad),29.32,0.0
+P-04,f_1,Ön İşlem – Fosfatlama (Yüzey İşlem),29.32,0.0
+P-05,f_1,Ön İşlem – Kurutma Fırını,29.32,0.0
+P-06,f_1,Kaplama – In-Mould Boya Uygulaması,29.32,0.0
+P-07,f_1,PUR Döküm ve Köpükleme,29.32,0.0
+P-08,f_1,Kürleme ve Soğutma,29.32,0.0
+P-09,f_1,Tekstil – Lazer/Bıçak Kesim,29.32,0.0
+P-10,f_1,Tekstil – Dikim ve Katlama,29.32,0.0
+P-11,f_1,Montaj – İnflatör Montajı,29.32,0.0
+P-12,f_1,Montaj – Nihai Birleştirme,29.32,0.0
+P-13,f_1,Kalite – Test ve Kontrol,29.32,0.0
+P-14,f_1,Atıkgaz Arıtımı – Termal Oksidasyon,29.32,1.0
+P-15,f_1,Atıksu Arıtımı – Kimyasal Çöktürme,29.32,1.0
+P-16,f_2,Şekillendirme – Sac Kesim ve Büküm,28.25,0.0
+P-17,f_2,Birleştirme – Kaynak ve Lehimleme (Bakır/Sac),28.25,0.0
+P-18,f_2,Ön İşlem – Alkali Yağ Alma,28.25,0.0
+P-19,f_2,Ön İşlem – Durulama (Kaskad),28.25,0.0
+P-20,f_2,Ön İşlem – Fosfatlama,28.25,0.0
+P-21,f_2,Ön İşlem – Durulama ve Pasivasyon,28.25,0.0
+P-22,f_2,Ön İşlem – Kurutma Fırını,28.25,0.0
+P-23,f_2,Boya – Astar / Primer Uygulaması,28.25,0.0
+P-24,f_2,Boya – Son Kat Uygulaması,28.25,0.0
+P-25,f_2,Boya – Kürleme / Pişirme Fırını,28.25,0.0
+P-26,f_2,Montaj – Alt Bileşen Birleştirme,28.25,0.0
+P-27,f_2,Montaj – Soğutucu Akışkan Şarjı,28.25,0.0
+P-28,f_2,Kalite – Sızdırmazlık ve Performans Testi,28.25,0.0
+P-29,f_2,Atıksu Arıtımı – Kimyasal Çöktürme,28.25,1.0
+P-30,f_2,Atıkgaz Arıtımı – Termal Oksidasyon,28.25,
+P-31,f_3,Şekillendirme – Monomer Döküm ve Kürleme,32.5,0.0
+P-32,f_3,Mekanik İşlem – Kaba Kesim ve Frezeleme,32.5,0.0
+P-33,f_3,Mekanik İşlem – Hassas Taşlama (Fining),32.5,0.0
+P-34,f_3,Mekanik İşlem – Polisaj / Parlatma,32.5,0.0
+P-35,f_3,Ön İşlem – Ultrasonik Temizleme ve Yağ Alma,32.5,0.0
+P-36,f_3,Ön İşlem – Kademeli Durulama,32.5,0.0
+P-37,f_3,Ön İşlem – Kurutma Fırını,32.5,0.0
+P-38,f_3,Yüzey İşlem – Renklendirme (Tinting),32.5,0.0
+P-39,f_3,Kaplama – Sert Kaplama (Hard Coating),32.5,0.0
+P-40,f_3,Kaplama – Sert Kaplama Kürleme,32.5,0.0
+P-41,f_3,Ön İşlem – Plazma / İyon Temizleme,32.5,0.0
+P-42,f_3,Kaplama – Anti-Reflektif (AR) Vakum Kaplama,32.5,0.0
+P-43,f_3,Kaplama – Hidrofobik Yüzey İşlemi,32.5,0.0
+P-44,f_3,Atıksu Arıtımı – Polisaj Çamuru Çöktürme,32.5,1.0
+P-45,f_3,"Nihai Montaj, Kalite Kontrol ve Paketleme",32.5,0.0
+P-46,f_4,Hammadde Kabul ve Depolama,20.53,0.0
+P-47,f_4,Ön İşlem – Hammadde Hazırlama (Öğütme/Kırma),20.53,0.0
+P-48,f_4,Ekstraksiyon – Doğal Aroma Çekimi,20.53,0.0
+P-49,f_4,Sentez – Esterleşme / Sentetik Aroma Reaksiyonu,20.53,0.0
+P-50,f_4,Ayırma – Faz Ayrımı ve Santrifüj,20.53,0.0
+P-51,f_4,Ayırma – Solvent Uzaklaştırma (Evaporasyon),20.53,0.0
+P-52,f_4,Saflaştırma – Rektifikasyon (Distilasyon),20.53,0.0
+P-53,f_4,Saflaştırma – Nötralizasyon ve Ürün Yıkama,20.53,0.0
+P-54,f_4,Saflaştırma – Kurutma (Vakum/Sprey),20.53,0.0
+P-55,f_4,Formülasyon – Karıştırma ve Standardizasyon,20.53,0.0
+P-56,f_4,Filtrasyon – Son Ürün Parlatma,20.53,0.0
+P-57,f_4,Ambalajlama ve Depolama,20.53,0.0
+P-58,f_4,Atıkgaz Arıtımı – Termal/Katalitik Oksidasyon,20.53,1.0
+P-59,f_4,Atıkgaz Arıtımı – Scrubber (Gaz Yıkama),20.53,1.0
+P-60,f_4,Atıksu Arıtımı – Biyolojik ve İleri Arıtım,20.53,1.0
+P-61,f_5,"Kabul, Ayrıştırma ve Depolama",38.32,0.0
+P-62,f_5,Ön Ayırma – Manuel ve Balistik Ayırma,38.32,0.0
+P-63,f_5,Mekanik Ayırma – Manyetik Seperatör,38.32,0.0
+P-64,f_5,Mekanik Ayırma – Eddy Current,38.32,0.0
+P-65,f_5,Mekanik Ayırma – Optik/NIR Ayırıcı,38.32,0.0
+P-66,f_5,Boyut Küçültme – Kırma ve Öğütme,38.32,0.0
+P-67,f_5,Fiziksel Ayırma – Batırma/Yüzdürme,38.32,0.0
+P-68,f_5,Temizleme – Sürtünmeli Yıkama,38.32,0.0
+P-69,f_5,Kurutma – Santrifüj ve Termal Kurutma,38.32,0.0
+P-70,f_5,Ekstrüzyon – Ergitme ve Gaz Giderme,38.32,0.0
+P-71,f_5,Ekstrüzyon – Eriyik Filtrasyonu,38.32,0.0
+P-72,f_5,Şekillendirme – Granülizasyon ve Soğutma,38.32,0.0
+P-73,f_5,Depolama – Homojenizasyon ve Paketleme,38.32,0.0
+P-74,f_5,Atıksu Arıtımı – Koagülasyon ve Çöktürme,38.32,1.0
+P-75,f_5,Atıkgaz Arıtımı – Aktif Karbon ve Toz Filtresi,38.32,1.0
+P-76,f_6,Hazırlık – Hamur Karışım (Compounding),22.19,0.0
+P-77,f_6,Şekillendirme – Ekstrüzyon,22.19,0.0
+P-78,f_6,Kürleme – Vulkanizasyon (Mikrodalga/Sıcak Hava),22.19,0.0
+P-79,f_6,Soğutma – Su Banyosu / Hava Soğutma,22.19,0.0
+P-80,f_6,Kaplama – Primer (Astar) Uygulaması,22.19,0.0
+P-81,f_6,Kaplama – Flok / Kaydırıcı Boya Uygulaması,22.19,0.0
+P-82,f_6,Kaplama – Kürleme ve Kurutma Fırını,22.19,0.0
+P-83,f_6,Mekanik İşlem – Kesim ve Boylama,22.19,0.0
+P-84,f_6,Mekanik İşlem – Çentik ve Delik Açma,22.19,0.0
+P-85,f_6,Birleştirme – Köşe Enjeksiyon (Molding),22.19,0.0
+P-86,f_6,Montaj – Bant ve Klips Takılması,22.19,0.0
+P-87,f_6,Kalite Kontrol ve Test,22.19,0.0
+P-88,f_6,Ambalajlama,22.19,0.0
+P-89,f_6,Atıkgaz Arıtımı – Termal Oksidasyon,22.19,1.0
+P-90,f_6,Atıksu Arıtımı – Çöktürme ve Flotasyon,22.19,1.0
+P-91,f_7,Hazırlık – Çözme ve Uç Kaynağı,24.33,0.0
+P-92,f_7,Ön İşlem – Mekanik Tufal Giderme,24.33,0.0
+P-93,f_7,Ön İşlem – Asitleme (Pickling),24.33,0.0
+P-94,f_7,Ön İşlem – Durulama,24.33,0.0
+P-95,f_7,Şekillendirme – Soğuk Haddeleme,24.33,0.0
+P-96,f_7,Yüzey Temizleme – Alkali/Elektrolitik Yağ Alma,24.33,0.0
+P-97,f_7,Yüzey Temizleme – Durulama ve Fırçalama,24.33,0.0
+P-98,f_7,Isıl İşlem – Tavlama (Isıtma),24.33,0.0
+P-99,f_7,Isıl İşlem – Tavlama (Soğutma),24.33,0.0
+P-100,f_7,Yüzey İyileştirme – Temperleme (Skin-pass),24.33,0.0
+P-101,f_7,Kesim – Dilme ve Boy Kesme,24.33,0.0
+P-102,f_7,Kaplama – Koruyucu Yağlama,24.33,0.0
+P-103,f_7,Yardımcı Tesis – Asit Geri Kazanım Ünitesi,24.33,1.0
+P-104,f_7,Yardımcı Tesis – Atıksu Arıtımı,24.33,1.0
+P-105,f_7,Ambalajlama ve Depolama,24.33,0.0
+P-106,f_8,"Hammadde Kabul, Tartım ve Dozajlama",21.2,0.0
+P-107,f_8,Kuru Karıştırma ve Harmanlama,21.2,0.0
+P-108,f_8,Yaş Granülasyon,21.2,0.0
+P-109,f_8,Granül Kurutma,21.2,0.0
+P-110,f_8,Kuru Eleme ve Öğütme,21.2,0.0
+P-111,f_8,Tablet Baskı (Kompresyon),21.2,0.0
+P-112,f_8,Kapsül Dolum,21.2,0.0
+P-113,f_8,Şurup/Solüsyon Hazırlama,21.2,0.0
+P-114,f_8,Tablet Film Kaplama,21.2,0.0
+P-115,f_8,CIP – Ekipman Temizliği,21.2,1.0
+P-116,f_8,Birincil Ambalajlama,21.2,0.0
+P-117,f_8,İkincil Ambalajlama,21.2,0.0
+P-118,f_8,Atıkgaz Arıtımı – Toz Filtrasyonu,21.2,1.0
+P-119,f_8,Atıkgaz Arıtımı – VOC Giderimi,21.2,1.0
+P-120,f_8,Atıksu Arıtımı – Biyolojik/İleri Arıtım,21.2,1.0
+P-121,f_9,Sac Kesim ve Derin Çekme (Pres),25.29,0.0
+P-122,f_9,Kaynak İşlemleri,25.29,0.0
+P-123,f_9,Kumlama / Bilyalama,25.29,0.0
+P-124,f_9,Alkali Yağ Alma,25.29,0.0
+P-125,f_9,Durulama,25.29,0.0
+P-126,f_9,Fosfatlama,25.29,0.0
+P-127,f_9,Kurutma Fırını,25.29,0.0
+P-128,f_9,Astar Boya Uygulaması,25.29,0.0
+P-129,f_9,Son Kat Boya (Yaş/Toz),25.29,0.0
+P-130,f_9,Boya Kürleme / Pişirme Fırını,25.29,0.0
+P-131,f_9,Basınç ve Sızdırmazlık Testi,25.29,0.0
+P-132,f_9,Montaj – Valf ve Aksesuar Takılması,25.29,0.0
+P-133,f_9,Paketleme ve Depolama,25.29,0.0
+P-134,f_9,Atıksu Arıtımı – Kimyasal Çöktürme,25.29,1.0
+P-135,f_9,Atıkgaz Arıtımı – Termal Oksidasyon,25.29,1.0
+P-136,f_10,"Hammadde Kabul, Tartım ve Dozajlama",20.42,0.0
+P-137,f_10,Katı Hammadde Öğütme ve Eleme,20.42,0.0
+P-138,f_10,Sıvı/Emülsiyon Karıştırma (Krem/Losyon),20.42,0.0
+P-139,f_10,Toz/Pigment Harmanlama,20.42,0.0
+P-140,f_10,Mum ve Yağların Ergitilmesi,20.42,0.0
+P-141,f_10,Parfüm/Likit Çözme ve Karıştırma,20.42,0.0
+P-142,f_10,Soğutma ve Maserasyon,20.42,0.0
+P-143,f_10,Filtrasyon – Likit Ürün Parlatma,20.42,0.0
+P-144,f_10,CIP/COP – Ekipman Temizliği,20.42,1.0
+P-145,f_10,Birincil Ambalajlama,20.42,0.0
+P-146,f_10,İkincil Ambalajlama,20.42,0.0
+P-147,f_10,Kalite Kontrol,20.42,0.0
+P-148,f_10,Depolama ve Sevkiyat,20.42,0.0
+P-149,f_10,Atıkgaz Arıtımı – VOC/Koku Giderimi,20.42,1.0
+P-150,f_10,Atıksu Arıtımı – DAF + Biyolojik,20.42,

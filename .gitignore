@@ -5,18 +5,16 @@ __pycache__/
 venv/
 **/__pycache__/
 
-# Local databases
-*.db
-
-# Repo runtime/generated files
-outputs/runtime/*
-!outputs/runtime/README.md
+# Pipeline çıktıları (her koşuda yeniden üretilir)
+outputs/runtime/matches_LCA_*.csv
+outputs/runtime/matches_LCA_ready.csv
+outputs/runtime/process_capacity_monthly_*.csv
+outputs/runtime/selected_matches.csv
+outputs/runtime/selected_matches_*.csv
+outputs/runtime/selected_raw_*.csv
+outputs/runtime/osb_limit.txt
+outputs/runtime/scenario_runs/
 
 # Generated reports
 services/reporter/reports/*
 !services/reporter/reports/.gitkeep
-
-# GAMS artifacts
-*.gdx
-*.log
-*.lst

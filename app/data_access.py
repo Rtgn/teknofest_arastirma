@@ -38,13 +38,13 @@ def exclude_period_from_ui(period: str) -> bool:
 
 
 def list_periods_from_runtime(rt: Optional[Path] = None) -> list[str]:
-    """matches_LCA_<periyot>.xlsx dosya adlarından periyot listesi (baz ay ve __SIM senaryoları)."""
+    """matches_LCA_<periyot>.csv dosya adlarından periyot listesi (baz ay ve __SIM senaryoları)."""
     base = Path(rt) if rt else runtime_dir()
     if not base.is_dir():
         return []
     out: list[str] = []
-    for p in base.glob("matches_LCA_*.xlsx"):
-        m = re.search(r"matches_LCA_(.+)\.xlsx$", p.name, re.I)
+    for p in base.glob("matches_LCA_*.csv"):
+        m = re.search(r"matches_LCA_(.+)\.csv$", p.name, re.I)
         if m:
             per = m.group(1).strip()
             if not exclude_period_from_ui(per):
@@ -70,11 +70,11 @@ def _lat_lng_columns(df: pd.DataFrame) -> tuple[str, str]:
 
 def load_factories_map(rt: Optional[Path] = None) -> dict[int, dict[str, Any]]:
     base = Path(rt) if rt else runtime_dir()
-    path = base / "factories.xlsx"
+    path = base / "factories.csv"
     if not path.is_file():
         return {}
     try:
-        df = pd.read_excel(path, engine="openpyxl")
+        df = pd.read_csv(path)
         id_c = _factory_id_column(df)
         lat_c, lng_c = _lat_lng_columns(df)
     except Exception:
@@ -94,7 +94,7 @@ def load_factories_map(rt: Optional[Path] = None) -> dict[int, dict[str, Any]]:
     return out
 
 
-# Tahmini harita yerleşimi (factories.xlsx yok / eksik id): Anadolu yaklaşık merkez
+# Tahmini harita yerleşimi (factories.csv yok / eksik id): Anadolu yaklaşık merkez
 _SYNTH_CENTER_LAT = 39.0
 _SYNTH_CENTER_LNG = 35.0
 _SYNTH_RADIUS_DEG = 0.45
@@ -178,8 +178,8 @@ def load_matches_for_network(
     source: 'matches_lca' | 'selected'
     Dönüş: (dataframe, hata_mesajı veya None)
 
-    Seçili görünüm: ``selected_matches_*.xlsx`` farklı ``process_id`` biçimleri içerebilir (eski
-    çalıştırmalardan kalma önbellek). Bu yüzden ``selected_matches.csv`` ve güncel ``matches_LCA_*.xlsx``
+    Seçili görünüm: ``selected_matches_*.csv`` farklı ``process_id`` biçimleri içerebilir (eski
+    çalıştırmalardan kalma önbellek). Bu yüzden ``selected_matches.csv`` ve güncel ``matches_LCA_*.csv``
     varsa satırlar her zaman bu ikisinden ``match_id`` ile birleştirilir (pipeline ile aynı).
     """
     base = Path(rt) if rt else runtime_dir()
@@ -225,7 +225,7 @@ def load_matches_for_network(
             return pd.DataFrame(), f"Dosya yok: {path.name}"
 
     try:
-        df = pd.read_excel(path, engine="openpyxl")
+        df = pd.read_csv(path)
     except Exception as e:
         return pd.DataFrame(), str(e)
     if not need.issubset(set(df.columns)):
@@ -484,7 +484,7 @@ def _total_capacity_monthly_kg(period: str, base: Path) -> Optional[float]:
     if not path.is_file():
         return None
     try:
-        cdf = pd.read_excel(path, engine="openpyxl")
+        cdf = pd.read_csv(path)
         if "capacity_monthly" not in cdf.columns:
             return None
         return float(pd.to_numeric(cdf["capacity_monthly"], errors="coerce").fillna(0).sum())
@@ -528,24 +528,24 @@ def load_dashboard_summary(rt: Optional[Path] = None) -> dict[str, Any]:
     latest = _latest_base_period_string(periods)
 
     inv: dict[str, Optional[int]] = {"factories": None, "processes": None, "waste_streams": None}
-    fp = base / "factories.xlsx"
+    fp = base / "factories.csv"
     if fp.is_file():
         try:
-            fdf = pd.read_excel(fp, engine="openpyxl")
+            fdf = pd.read_csv(fp)
             inv["factories"] = int(len(fdf))
         except Exception:
             pass
-    pp = base / "processes.xlsx"
+    pp = base / "processes.csv"
     if pp.is_file():
         try:
-            pdf = pd.read_excel(pp, engine="openpyxl")
+            pdf = pd.read_csv(pp)
             inv["processes"] = int(len(pdf))
         except Exception:
             pass
-    wp = base / "waste_streams.xlsx"
+    wp = base / "waste_streams.csv"
     if wp.is_file():
         try:
-            wdf = pd.read_excel(wp, engine="openpyxl")
+            wdf = pd.read_csv(wp)
             inv["waste_streams"] = int(len(wdf))
         except Exception:
             pass
@@ -607,12 +607,12 @@ def load_simulation_baseline(period: str, rt: Optional[Path] = None) -> dict[str
     processes_out: list[dict[str, Any]] = []
     errs: list[str] = []
 
-    fac_xlsx = base / "factories.xlsx"
-    fs_xlsx = base / "factory_status.xlsx"
+    fac_xlsx = base / "factories.csv"
+    fs_xlsx = base / "factory_status.csv"
     if fac_xlsx.is_file() and fs_xlsx.is_file():
         try:
-            fac_df = pd.read_excel(fac_xlsx, engine="openpyxl")
-            fst = pd.read_excel(fs_xlsx, engine="openpyxl")
+            fac_df = pd.read_csv(fac_xlsx)
+            fst = pd.read_csv(fs_xlsx)
             id_c = _factory_id_column(fac_df)
             name_c = "name" if "name" in fac_df.columns else id_c
             fst_m = fst.loc[pd.to_numeric(fst["month"], errors="coerce") == month]
@@ -636,15 +636,15 @@ def load_simulation_baseline(period: str, rt: Optional[Path] = None) -> dict[str
         except Exception as e:
             errs.append(f"fabrika: {e}")
     else:
-        errs.append("factories.xlsx veya factory_status.xlsx yok")
+        errs.append("factories.csv veya factory_status.csv yok")
 
-    proc_xlsx = base / "processes.xlsx"
-    ps_xlsx = base / "process_status.xlsx"
+    proc_xlsx = base / "processes.csv"
+    ps_xlsx = base / "process_status.csv"
     cap_m = base / process_capacity_monthly_filename(period)
     cap_map: dict[str, float] = {}
     if cap_m.is_file():
         try:
-            cdf = pd.read_excel(cap_m, engine="openpyxl")
+            cdf = pd.read_csv(cap_m)
             if "process_id" in cdf.columns and "capacity_monthly" in cdf.columns:
                 for _, r in cdf.iterrows():
                     pid = str(r["process_id"]).strip()
@@ -654,8 +654,8 @@ def load_simulation_baseline(period: str, rt: Optional[Path] = None) -> dict[str
 
     if proc_xlsx.is_file() and ps_xlsx.is_file():
         try:
-            proc = pd.read_excel(proc_xlsx, engine="openpyxl")
-            pst = pd.read_excel(ps_xlsx, engine="openpyxl")
+            proc = pd.read_csv(proc_xlsx)
+            pst = pd.read_csv(ps_xlsx)
             pst_m = pst.loc[pd.to_numeric(pst["month"], errors="coerce") == month]
             ps_map: dict[str, float] = {}
             if "process_id" in pst_m.columns and "status" in pst_m.columns:
@@ -679,7 +679,7 @@ def load_simulation_baseline(period: str, rt: Optional[Path] = None) -> dict[str
         except Exception as e:
             errs.append(f"proses: {e}")
     else:
-        errs.append("processes.xlsx veya process_status.xlsx yok")
+        errs.append("processes.csv veya process_status.csv yok")
 
     return {
         "period": period,

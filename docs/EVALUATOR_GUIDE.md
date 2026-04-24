@@ -54,10 +54,10 @@ Kısıtlı zamanınız varsa şu sırayla inceleyin:
 
 Tipik gerekli girdiler şunlardır:
 
-- `factories.xlsx`
-- `processes.xlsx`
-- `waste_streams.xlsx`
-- `waste_process_links.xlsx`
+- `factories.csv`
+- `processes.csv`
+- `waste_streams.csv`
+- `waste_process_links.csv`
 - `process_capacity.csv`
 - supporting templates such as resource use, emission factors, and monthly status files
 
@@ -67,9 +67,9 @@ Girdi şeması tanımları [`../data_schemas/README.md`](../data_schemas/README.
 
 Önemli üretilen çıktılar şunlardır:
 
-- `matches_LCA_{YYYY-MM}.xlsx`
-- `process_capacity_monthly_{YYYY-MM}.xlsx`
-- `selected_matches_{YYYY-MM}.xlsx`
+- `matches_LCA_{YYYY-MM}.csv`
+- `process_capacity_monthly_{YYYY-MM}.csv`
+- `selected_matches_{YYYY-MM}.csv`
 - optimization support artifacts written during runs
 
 ## Temel Demo Nasıl Çalıştırılır

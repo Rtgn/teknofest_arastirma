@@ -80,7 +80,7 @@ def validate_matches_against_processes_and_streams(
 
     proc = processes.copy()
     if "process_id" not in proc.columns or "factory_id" not in proc.columns:
-        return ["validate: processes.xlsx içinde process_id ve factory_id gerekli."]
+        return ["validate: processes.csv içinde process_id ve factory_id gerekli."]
     proc["process_id"] = proc["process_id"].astype(str).str.strip()
     proc["factory_id"] = proc["factory_id"].map(parse_factory_id)
     pmap = proc.drop_duplicates(subset=["process_id"], keep="last").set_index("process_id")[

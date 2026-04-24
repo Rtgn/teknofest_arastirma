@@ -16,7 +16,7 @@ from core.factory_ids import parse_factory_id
 
 logger = logging.getLogger(__name__)
 
-# Kaynak çarpanı ~0 ise o fabrikadaki proseslerin kapasitesi de sıfırlanır (processes.xlsx gerekir)
+# Kaynak çarpanı ~0 ise o fabrikadaki proseslerin kapasitesi de sıfırlanır (processes.csv gerekir)
 _FACTORY_INACTIVE_EPS = 1e-9
 # MILP amacı W kullanmadığı için sıfır atıklı satırlar zorunlu elenir
 _MIN_WASTE_KG_FOR_MILP = 1e-6

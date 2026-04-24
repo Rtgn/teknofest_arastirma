@@ -27,19 +27,19 @@ def format_period(year: int, month: int) -> str:
 
 
 def matches_lca_filename(period: str) -> str:
-    return f"matches_LCA_{period}.xlsx"
+    return f"matches_LCA_{period}.csv"
 
 
 def process_capacity_monthly_filename(period: str) -> str:
-    return f"process_capacity_monthly_{period}.xlsx"
+    return f"process_capacity_monthly_{period}.csv"
 
 
 def selected_matches_filename(period: str) -> str:
-    return f"selected_matches_{period}.xlsx"
+    return f"selected_matches_{period}.csv"
 
 
 def selected_raw_filename(period: str) -> str:
-    return f"selected_raw_{period}.xlsx"
+    return f"selected_raw_{period}.csv"
 
 
 def simulation_period(base_period: str, scenario_id: int) -> str:

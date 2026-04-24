@@ -21,14 +21,14 @@ def _factory_id_col(df: pd.DataFrame) -> str:
     for c in ("id", "factory_id", "fabrika_id", "tesis_id"):
         if c in df.columns:
             return c
-    raise ValueError("factories.xlsx: id / factory_id sütunu yok")
+    raise ValueError("factories.csv: id / factory_id sütunu yok")
 
 
 def _load_factories_labels(rt: Path) -> tuple[dict[int, str], list[int]]:
-    p = rt / "factories.xlsx"
+    p = rt / "factories.csv"
     if not p.is_file():
         return {}, []
-    df = pd.read_excel(p, engine="openpyxl")
+    df = pd.read_csv(p)
     id_c = _factory_id_col(df)
     name_c = "name" if "name" in df.columns else id_c
     labels: dict[int, str] = {}
@@ -43,10 +43,10 @@ def _load_factories_labels(rt: Path) -> tuple[dict[int, str], list[int]]:
 
 
 def _load_process_ids(rt: Path) -> tuple[dict[str, str], list[str]]:
-    p = rt / "processes.xlsx"
+    p = rt / "processes.csv"
     if not p.is_file():
         return {}, []
-    df = pd.read_excel(p, engine="openpyxl")
+    df = pd.read_csv(p)
     if "process_id" not in df.columns:
         return {}, []
     name_c = "process_name" if "process_name" in df.columns else "process_id"
@@ -61,11 +61,11 @@ def _load_process_ids(rt: Path) -> tuple[dict[str, str], list[str]]:
     return labels, ids
 
 
-def _read_excel_table(rt: Path, name: str) -> pd.DataFrame:
+def _read_table(rt: Path, name: str) -> pd.DataFrame:
     p = rt / name
     if not p.is_file():
         return pd.DataFrame()
-    return pd.read_excel(p, engine="openpyxl")
+    return pd.read_csv(p)
 
 
 def _normalize_factory_status(df: pd.DataFrame) -> pd.DataFrame:
@@ -109,9 +109,9 @@ def load_monthly_inputs(rt: Path) -> dict[str, Any]:
     fac_labels, fac_ids = _load_factories_labels(rt)
     proc_labels, proc_ids = _load_process_ids(rt)
 
-    fs = _normalize_factory_status(_read_excel_table(rt, "factory_status.xlsx"))
-    ps = _normalize_process_status(_read_excel_table(rt, "process_status.xlsx"))
-    cf = _normalize_capacity_factors(_read_excel_table(rt, "capacity_factors.xlsx"))
+    fs = _normalize_factory_status(_read_table(rt, "factory_status.csv"))
+    ps = _normalize_process_status(_read_table(rt, "process_status.csv"))
+    cf = _normalize_capacity_factors(_read_table(rt, "capacity_factors.csv"))
 
     cap_rows: list[dict[str, Any]] = []
     cap_path = rt / "process_capacity.csv"
@@ -160,21 +160,21 @@ def save_factory_status(rt: Path, records: list[dict[str, Any]]) -> None:
     rt = Path(rt)
     df = _normalize_factory_status(_df_from_records("factory_status", records))
     rt.mkdir(parents=True, exist_ok=True)
-    df.to_excel(rt / "factory_status.xlsx", index=False)
+    df.to_csv(rt / "factory_status.csv", index=False)
 
 
 def save_process_status(rt: Path, records: list[dict[str, Any]]) -> None:
     rt = Path(rt)
     df = _normalize_process_status(_df_from_records("process_status", records))
     rt.mkdir(parents=True, exist_ok=True)
-    df.to_excel(rt / "process_status.xlsx", index=False)
+    df.to_csv(rt / "process_status.csv", index=False)
 
 
 def save_capacity_factors(rt: Path, records: list[dict[str, Any]]) -> None:
     rt = Path(rt)
     df = _normalize_capacity_factors(_df_from_records("capacity_factors", records))
     rt.mkdir(parents=True, exist_ok=True)
-    df.to_excel(rt / "capacity_factors.xlsx", index=False)
+    df.to_csv(rt / "capacity_factors.csv", index=False)
 
 
 def save_process_capacity_csv(rt: Path, records: list[dict[str, Any]]) -> None:
@@ -201,7 +201,7 @@ def ensure_monthly_grids(
     default_cap_factor: float = 1.0,
 ) -> dict[str, Any]:
     """
-    factories.xlsx / processes.xlsx listelerine göre eksik (fabrika|proses × ay) satırlarını ekler.
+    factories.csv / processes.csv listelerine göre eksik (fabrika|proses × ay) satırlarını ekler.
     process_capacity.csv'de eksik proseslere DEFAULT_TON_PER_DAY yazar.
     """
     rt = Path(rt)
@@ -209,13 +209,13 @@ def ensure_monthly_grids(
     _, fac_ids = _load_factories_labels(rt)
     _, proc_ids = _load_process_ids(rt)
     if not fac_ids:
-        return {"status": "failed", "error": "factories.xlsx yok veya fabrika okunamadı", "messages": messages}
+        return {"status": "failed", "error": "factories.csv yok veya fabrika okunamadı", "messages": messages}
     if not proc_ids:
-        return {"status": "failed", "error": "processes.xlsx yok veya proses okunamadı", "messages": messages}
+        return {"status": "failed", "error": "processes.csv yok veya proses okunamadı", "messages": messages}
 
-    fs = _normalize_factory_status(_read_excel_table(rt, "factory_status.xlsx"))
-    ps = _normalize_process_status(_read_excel_table(rt, "process_status.xlsx"))
-    cf = _normalize_capacity_factors(_read_excel_table(rt, "capacity_factors.xlsx"))
+    fs = _normalize_factory_status(_read_table(rt, "factory_status.csv"))
+    ps = _normalize_process_status(_read_table(rt, "process_status.csv"))
+    cf = _normalize_capacity_factors(_read_table(rt, "capacity_factors.csv"))
 
     fs_keys = set(zip(fs["factory_id"], fs["month"])) if not fs.empty else set()
     added_fs = 0

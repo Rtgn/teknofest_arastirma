@@ -132,13 +132,13 @@ def run_scenario_pipeline(
     runtime_dir: Optional[Path] = None,
 ) -> dict[str, Any]:
     """
-    Baz: `outputs/runtime/matches_LCA_{base_period}.xlsx` ve ayni dizinde
-    `process_capacity_monthly_{base_period}.xlsx`.
+    Baz: `outputs/runtime/matches_LCA_{base_period}.csv` ve ayni dizinde
+    `process_capacity_monthly_{base_period}.csv`.
 
     ``digital_twin``: fabrika/proses çarpanları (bkz. ``pipeline.digital_twin``) — MILP öncesi uygulanır.
 
     Çıktı: `simulation_period` etiketi ile dosyalar ve `emission_limits_report`.
-    Başarıda ``matches_LCA_{sim_p}.xlsx`` ve ``selected_matches_{sim_p}.csv`` runtime köküne kopyalanır (ağ API).
+    Başarıda ``matches_LCA_{sim_p}.csv`` ve ``selected_matches_{sim_p}.csv`` runtime köküne kopyalanır (ağ API).
     """
     runtime = Path(runtime_dir or RUNTIME_DIR)
     sim_p = simulation_period(base_period, scenario_id)
@@ -153,9 +153,9 @@ def run_scenario_pipeline(
         return {"status": "failed", "error": f"Kapasite dosyası yok: {c_path}"}
 
     emission_limits_df: Optional[pd.DataFrame] = None
-    el_path = runtime / "bref_emission_limits.xlsx"
+    el_path = runtime / "bref_emission_limits.csv"
     if el_path.is_file():
-        emission_limits_df = pd.read_excel(el_path)
+        emission_limits_df = pd.read_csv(el_path)
 
     report_limits = emission_limits_report(
         emission_limits_df if emission_limits_df is not None else pd.DataFrame(),
@@ -163,14 +163,14 @@ def run_scenario_pipeline(
         base_period=base_period,
     )
 
-    matches = pd.read_excel(m_path)
-    cap_df = pd.read_excel(c_path)
+    matches = pd.read_csv(m_path)
+    cap_df = pd.read_csv(c_path)
 
-    proc_path = runtime / "processes.xlsx"
+    proc_path = runtime / "processes.csv"
     if digital_twin is not None:
         from pipeline.digital_twin import apply_digital_twin_overrides
 
-        processes_for_dt = pd.read_excel(proc_path) if proc_path.is_file() else None
+        processes_for_dt = pd.read_csv(proc_path) if proc_path.is_file() else None
         matches, cap_df = apply_digital_twin_overrides(
             matches, cap_df, digital_twin, processes_df=processes_for_dt
         )
@@ -181,11 +181,11 @@ def run_scenario_pipeline(
                 "emission_limits_report": report_limits,
             }
 
-    processes_for_tech = pd.read_excel(proc_path) if proc_path.is_file() else None
+    processes_for_tech = pd.read_csv(proc_path) if proc_path.is_file() else None
 
-    process_metadata_path = runtime / "process_metadata.xlsx"
+    process_metadata_path = runtime / "process_metadata.csv"
     process_metadata = (
-        pd.read_excel(process_metadata_path) if process_metadata_path.is_file() else None
+        pd.read_csv(process_metadata_path) if process_metadata_path.is_file() else None
     )
 
     if waste_bounds is not None:
@@ -217,15 +217,15 @@ def run_scenario_pipeline(
 
     out_m = work / matches_lca_filename(sim_p)
     out_c = work / process_capacity_monthly_filename(sim_p)
-    matches.to_excel(out_m, index=False)
-    cap_df.to_excel(out_c, index=False)
+    matches.to_csv(out_m, index=False)
+    cap_df.to_csv(out_c, index=False)
 
     osb_limit = float(pd.to_numeric(cap_df["capacity_monthly"], errors="coerce").fillna(0).sum())
     with open(work / "osb_limit.txt", "w", encoding="utf-8") as f:
         f.write(f"OSB_Limit = {osb_limit};")
 
     df_clean, clean_report = clean_matches(matches)
-    df_clean.to_excel(out_m, index=False)
+    df_clean.to_csv(out_m, index=False)
 
     milp_report: Optional[dict[str, Any]] = None
     try:
