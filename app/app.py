@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import re
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 _WEB_ROOT = Path(__file__).resolve().parent
@@ -81,6 +82,10 @@ def _result_response(payload: dict) -> tuple:
     return jsonify(payload), (200 if payload.get("status") == "success" else 500)
 
 
+def _error_response(error: str, status_code: int) -> tuple:
+    return jsonify({"status": "failed", "error": error}), status_code
+
+
 def _normalize_network_source() -> str:
     source = request.args.get("source", "matches_lca")
     return source if source in VALID_NETWORK_SOURCES else "matches_lca"
@@ -105,6 +110,25 @@ def _pipeline_files_info(rt: Path) -> list[dict[str, object]]:
         if path.name not in seen and "eski" not in path.name.lower()
     )
     return files_info
+
+
+@contextmanager
+def _db_session():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def _match_payload(item: dict[str, object]) -> tuple[str, dict[str, object]]:
+    return str(item.get("match_id", "")).strip(), {
+        "process_id": str(item.get("process_id", "")).strip(),
+        "waste_id": str(item.get("waste_id", "")).strip(),
+        "waste_amount_kg": float(item.get("waste_amount_kg", 0.0) or 0.0),
+        "distance_km": float(item.get("distance_km", 0.0) or 0.0),
+        "transport_mode": str(item.get("transport_mode", "transport_truck") or "transport_truck"),
+    }
 
 
 @app.route("/")
@@ -162,7 +186,7 @@ def api_monthly_inputs_save():
         if data.get("process_capacity"):
             save_process_capacity_csv(rt, data["process_capacity"])
     except Exception as e:
-        return jsonify({"status": "failed", "error": str(e)}), 400
+        return _error_response(str(e), 400)
     return jsonify({"status": "success"})
 
 
@@ -190,11 +214,11 @@ def api_monthly_pipeline_run():
     data = _json_body()
     period = (data.get("period") or "").strip()
     if not period:
-        return jsonify({"status": "failed", "error": "period (YYYY-MM) gerekli"}), 400
+        return _error_response("period (YYYY-MM) gerekli", 400)
     try:
         out = run_monthly_pipeline(period, triggered_by="api_monthly_ui")
     except Exception as e:
-        return jsonify({"status": "failed", "error": str(e)}), 500
+        return _error_response(str(e), 500)
     return _result_response(out)
 
 
@@ -210,7 +234,7 @@ def api_simulation_run():
     data = _json_body()
     base_period = (data.get("period") or "").strip()
     if not base_period:
-        return jsonify({"status": "failed", "error": "period (YYYY-MM) gerekli"}), 400
+        return _error_response("period (YYYY-MM) gerekli", 400)
     payload = {
         "factory_activity": data.get("factory_activity") or {},
         "process_capacity_mult": data.get("process_capacity_mult") or {},
@@ -221,7 +245,7 @@ def api_simulation_run():
     try:
         out = run_digital_twin_simulation(base_period, payload)
     except Exception as e:
-        return jsonify({"status": "failed", "error": str(e)}), 500
+        return _error_response(str(e), 500)
     return _result_response(out)
 
 
@@ -248,30 +272,23 @@ def api_lca_root():
 
 @app.route("/api/lca/profiles")
 def api_lca_profiles():
-    db = SessionLocal()
-    try:
+    with _db_session() as db:
         return jsonify([_serialize_profile(profile) for profile in db.query(ProcessLCAProfile).all()])
-    finally:
-        db.close()
 
 
 @app.route("/api/lca/profiles/<process_id>")
 def api_lca_profile(process_id: str):
-    db = SessionLocal()
-    try:
+    with _db_session() as db:
         profile = db.query(ProcessLCAProfile).filter_by(process_id=process_id).first()
         if not profile:
             return jsonify({"detail": "Proses LCA Profili bulunamadi."}), 404
         return jsonify(_serialize_profile(profile))
-    finally:
-        db.close()
 
 
 @app.route("/api/lca/profiles/<process_id>", methods=["PUT"])
 def api_lca_profile_update(process_id: str):
     data = _json_body()
-    db = SessionLocal()
-    try:
+    with _db_session() as db:
         profile = db.query(ProcessLCAProfile).filter_by(process_id=process_id).first()
         if not profile:
             return jsonify({"detail": "Bulunamadi."}), 404
@@ -279,41 +296,26 @@ def api_lca_profile_update(process_id: str):
             setattr(profile, field, float(data.get(field, getattr(profile, field))))
         db.commit()
         return jsonify({"message": "Profil guncellendi.", "process_id": process_id})
-    finally:
-        db.close()
 
 
 @app.route("/api/lca/emission-factors")
 def api_lca_emission_factors():
-    db = SessionLocal()
-    try:
+    with _db_session() as db:
         return jsonify([_serialize_factor(factor) for factor in db.query(EmissionFactor).all()])
-    finally:
-        db.close()
 
 
 @app.route("/api/lca/calculate_lca/batch", methods=["POST"])
 def api_lca_batch():
     payload = _json_body()
     matches = payload.get("matches") or []
-    db = SessionLocal()
-    try:
+    with _db_session() as db:
         results: dict[str, dict] = {}
         for item in matches:
-            match_id = str(item.get("match_id", "")).strip()
+            match_id, match_payload = _match_payload(item)
             if not match_id:
                 continue
-            results[match_id] = calculate_lca(
-                db=db,
-                process_id=str(item.get("process_id", "")).strip(),
-                waste_id=str(item.get("waste_id", "")).strip(),
-                waste_amount_kg=float(item.get("waste_amount_kg", 0.0) or 0.0),
-                distance_km=float(item.get("distance_km", 0.0) or 0.0),
-                transport_mode=str(item.get("transport_mode", "transport_truck") or "transport_truck"),
-            )
+            results[match_id] = calculate_lca(db=db, **match_payload)
         return jsonify({"status": "success", "results": results})
-    finally:
-        db.close()
 
 
 @app.route("/api/network_graph/<period>")

@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Float, String
+
 from .database import Base
+
 
 class ProcessLCAProfile(Base):
     __tablename__ = "process_lca_profiles"
@@ -10,6 +12,7 @@ class ProcessLCAProfile(Base):
     chemical_kg_per_ton = Column(Float, default=0.2)
     waste_reduction_coeff = Column(Float, default=1.0)
     recovery_efficiency = Column(Float, default=0.85)
+
 
 class EmissionFactor(Base):
     __tablename__ = "emission_factors"

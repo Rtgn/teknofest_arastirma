@@ -1,11 +1,13 @@
-# v2 çekirdek (implementasyon sırasında sabitlenecek)
+# unified repo dependencies
+flask>=3.0
 pandas>=2.0
 numpy>=1.26
-openpyxl
+openpyxl>=3.1
 requests
+jinja2
+ollama
+networkx>=3.0
+pyvis>=0.3
 pulp>=2.7
 sqlalchemy>=2.0
-# numpy>=1.26
-# openpyxl
-# requests
 # GAMS: yalnızca gams.exe (Python gams paketi gerekmez)

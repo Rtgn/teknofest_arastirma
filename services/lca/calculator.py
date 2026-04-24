@@ -46,6 +46,10 @@ LEGACY_DISPOSAL = _read_legacy_excel(
     "waste_streams.xlsx",
     lambda df: dict(zip(df["waste_id"], df["disposal_cost_per_ton"])),
 )
+DEFAULT_DISPOSAL_COST_PER_TON = 50.0
+DEFAULT_RESOURCE_PRICE = 0.5
+DEFAULT_TRANSPORT_CO2 = 0.089
+DEFAULT_GRID_CO2 = 0.42
 
 
 def _fallback_profile() -> ProcessLCAProfile:
@@ -57,13 +61,21 @@ def _emission_factor(db: Session, resource_type: str, default: float) -> float:
     return factor.co2_per_unit if factor else default
 
 
+def _profile(db: Session, process_id: str) -> ProcessLCAProfile:
+    return db.query(ProcessLCAProfile).filter_by(process_id=process_id).first() or _fallback_profile()
+
+
+def _round_tons(value_kg: float) -> float:
+    return round(value_kg / 1000.0, 6)
+
+
 def calculate_lca(
     db: Session,
     process_id: str,
     waste_id: str,
     waste_amount_kg: float,
     distance_km: float,
-    transport_mode: str = "transport_truck"
+    transport_mode: str = "transport_truck",
 ):
     """
     Spesifik bir eşleşmenin detaylı LCA ve Ekonomik metriklerini hesaplar.
@@ -74,29 +86,23 @@ def calculate_lca(
     - Net CO₂ = (Önlenen bertaraf + Önlenen hammadde) - (Taşıma + İşleme)
     """
     waste_amount_ton = waste_amount_kg / 1000.0 if waste_amount_kg else 0.0
-
-    # 1. Profil ve Faktörleri Çek
-    profile = db.query(ProcessLCAProfile).filter_by(process_id=process_id).first() or _fallback_profile()
-    transport_co2_kg_per_ton_km = _emission_factor(db, transport_mode, 0.089)  # EEA Road Freight 2023
-    grid_co2 = _emission_factor(db, "electricity", 0.42)
+    profile = _profile(db, process_id)
+    transport_co2_kg_per_ton_km = _emission_factor(db, transport_mode, DEFAULT_TRANSPORT_CO2)
+    grid_co2 = _emission_factor(db, "electricity", DEFAULT_GRID_CO2)
 
     # 2. Önlenen Bertaraf (Avoided Disposal)
     # IPCC AR6 Landfill emisyon faktörü: depolama alanı metan (CH4) + sızdırma
     # ~100-140 kg CO2e/ton aralığı → merkezi değer 120 kullanılıyor
-    avoided_disposal_co2 = waste_amount_ton * AVOIDED_DISPOSAL_CO2_PER_TON  # kg CO2e/ton (IPCC AR6)
-    disposal_cost_saving = waste_amount_ton * LEGACY_DISPOSAL.get(waste_id, 50.0)  # Ton başı bertaraf kurtarımı
+    avoided_disposal_co2 = waste_amount_ton * AVOIDED_DISPOSAL_CO2_PER_TON
+    disposal_cost_saving = waste_amount_ton * LEGACY_DISPOSAL.get(waste_id, DEFAULT_DISPOSAL_COST_PER_TON)
 
     # 3. Geri Kazanım ve Önlenen Hammadde (Recovery & Avoided Virgin Material)
     rec_info = LEGACY_RECOVERY.get(waste_id, DEFAULT_RECOVERY)
-    # Verimi profile the bağla: (Veritabanındaki verim * Exceldeki rate)
-    eff = profile.recovery_efficiency
-    final_recovery_rate = rec_info["Recovery Rate"] * eff
+    final_recovery_rate = rec_info["Recovery Rate"] * profile.recovery_efficiency
     recovered_amount_kg = waste_amount_kg * final_recovery_rate
 
     target_res = rec_info["Target Resource Type"]
-    res_co2_factor = LEGACY_EMISSIONS.get(target_res, 0.0)  # Virgin material CO2
-
-    avoided_virgin_co2 = recovered_amount_kg * res_co2_factor
+    avoided_virgin_co2 = recovered_amount_kg * LEGACY_EMISSIONS.get(target_res, 0.0)
 
     # 4. İşleme Yükü (Processing Burden)
     # Prosesin bu atığı işlerken harcadığı elektrik vb.
@@ -108,17 +114,14 @@ def calculate_lca(
 
     # 6. NET CO2 HESABI (tCO2e)
     # Net = Önlenenler - Harcananlar
-    net_co2e_kg = (avoided_disposal_co2 + avoided_virgin_co2) - (processing_co2 + transport_co2)
-    net_co2e_ton = net_co2e_kg / 1000.0
+    avoided_co2 = avoided_disposal_co2 + avoided_virgin_co2
+    net_co2e_kg = avoided_co2 - (processing_co2 + transport_co2)
 
     # 7. EKONOMİK HESAP
     # Kâr = (Geri Kazanılan Hammadenin Değeri + Önlenen Çöp Masrafı) - (Taşıma + İşleme Masrafı)
-    res_price = LEGACY_PRICES.get(target_res, 0.5)
-    recovered_value = recovered_amount_kg * res_price
-    
+    recovered_value = recovered_amount_kg * LEGACY_PRICES.get(target_res, DEFAULT_RESOURCE_PRICE)
     transport_cost = waste_amount_ton * distance_km * TRANSPORT_COST_PER_TON_KM
     processing_cost = processing_energy_kwh * PROCESSING_COST_PER_KWH
-
     profit = (recovered_value + disposal_cost_saving) - (transport_cost + processing_cost)
 
     return {
@@ -130,8 +133,8 @@ def calculate_lca(
         "recovered_value": round(recovered_value, 2),
         "profit": round(profit, 2),
         # Bileşenler küçük olduğunda 3 hanede 0 görünmesin diye 6 hane (tCO2e)
-        "transport_co2": round(transport_co2 / 1000.0, 6),
-        "processing_co2": round(processing_co2 / 1000.0, 6),
-        "avoided_co2": round((avoided_disposal_co2 + avoided_virgin_co2) / 1000.0, 6),
-        "net_co2e": round(net_co2e_ton, 6),
+        "transport_co2": _round_tons(transport_co2),
+        "processing_co2": _round_tons(processing_co2),
+        "avoided_co2": _round_tons(avoided_co2),
+        "net_co2e": _round_tons(net_co2e_kg),
     }
