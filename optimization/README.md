@@ -1,21 +1,21 @@
 # optimization
 
-Optimization integration layer.
+Optimizasyon entegrasyon katmanı.
 
-## Responsibilities
+## Sorumluluklar
 
-- prepare optimization input tables
-- invoke the external optimization workflow
-- read selected match results back into the application
+- optimizasyon girdi tablolarını hazırlamak
+- dış optimizasyon iş akışını çağırmak
+- seçili eşleşme sonuçlarını tekrar uygulamaya okumak
 
-## Key Files
+## Temel Dosyalar
 
-- `gdx_builder.py`: prepares optimization-oriented CSV inputs
-- `gams_runner.py`: runs GAMS through a subprocess call
-- `result_reader.py`: reads selected match outputs
-- `gms/`: model files and notes for the GAMS side
+- `gdx_builder.py`: optimizasyon odaklı CSV girdilerini hazırlar
+- `gams_runner.py`: GAMS'ı alt süreç çağrısı ile çalıştırır
+- `result_reader.py`: seçili eşleşme çıktılarını okur
+- `gms/`: GAMS tarafındaki model dosyaları ve notlar
 
-## Notes
+## Notlar
 
-- this layer is intentionally separated from `core/` so optimization concerns stay isolated
-- GAMS availability is an environment prerequisite for the full optimization path
+- bu katman, optimizasyon sorumlulukları izole kalsın diye `core/` katmanından bilinçli olarak ayrılmıştır
+- tam optimizasyon yolu için GAMS'ın ortamda bulunması gerekir

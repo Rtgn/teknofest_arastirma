@@ -1,65 +1,65 @@
 # teknofest_arastirma
 
-Industrial symbiosis decision-support system for Organized Industrial Zones (OSB). The repository combines data preparation, LCA-based environmental and economic scoring, optimization, and a Flask interface in one package.
+Organize Sanayi Bölgeleri (OSB) için geliştirilmiş endüstriyel simbiyoz karar destek sistemi. Bu depo; veri hazırlama, YDA/LCA tabanlı çevresel ve ekonomik puanlama, optimizasyon ve Flask arayüzünü tek bir pakette birleştirir.
 
-This project is organized to be understandable for both technical reviewers and competition evaluators:
+Bu proje hem teknik inceleyiciler hem de yarışma değerlendiricileri tarafından anlaşılabilir olacak şekilde düzenlenmiştir:
 
-- Start here: [`docs/EVALUATOR_GUIDE.md`](docs/EVALUATOR_GUIDE.md)
-- Technical architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
-- Folder map: [`docs/PROJECT_STRUCTURE.md`](docs/PROJECT_STRUCTURE.md)
-- Runtime input/output conventions: [`outputs/runtime/README.md`](outputs/runtime/README.md)
+- Başlangıç noktası: [`docs/EVALUATOR_GUIDE.md`](docs/EVALUATOR_GUIDE.md)
+- Teknik mimari: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- Klasör haritası: [`docs/PROJECT_STRUCTURE.md`](docs/PROJECT_STRUCTURE.md)
+- Çalışma zamanı girdi/çıktı kuralları: [`outputs/runtime/README.md`](outputs/runtime/README.md)
 
-## What The System Does
+## Sistem Ne Yapar
 
-At a high level, the system:
+Sistem yüksek seviyede şunları yapar:
 
-1. Reads factory, process, waste, and capacity data from Excel/CSV files.
-2. Builds monthly industrial symbiosis match candidates.
-3. Computes LCA-based impact metrics such as avoided emissions, processing burden, transport burden, and profit.
-4. Scores candidate matches.
-5. Runs optimization to select the best feasible set of matches.
-6. Exposes the workflow through a local Flask application and utility APIs.
+1. Excel/CSV dosyalarından fabrika, proses, atık ve kapasite verilerini okur.
+2. Aylık endüstriyel simbiyoz eşleşme adayları üretir.
+3. Önlenen emisyon, işleme yükü, taşıma yükü ve kâr gibi YDA/LCA tabanlı etki metriklerini hesaplar.
+4. Eşleşme adaylarını puanlar.
+5. En uygun ve uygulanabilir eşleşme kümesini seçmek için optimizasyon çalıştırır.
+6. Akışı yerel Flask uygulaması ve yardımcı API'ler üzerinden sunar.
 
-## Main Folders
+## Ana Klasörler
 
-- [`app/`](app/README.md): Flask UI and HTTP endpoints
-- [`core/`](core/README.md): shared business logic and contracts
-- [`pipeline/`](pipeline/README.md): monthly and scenario orchestration
-- [`services/`](services/README.md): internal LCA and reporting services
-- [`data_schemas/`](data_schemas/README.md): input templates and data contracts
-- [`outputs/runtime/`](outputs/runtime/README.md): generated runtime artifacts
+- [`app/`](app/README.md): Flask arayüzü ve HTTP uç noktaları
+- [`core/`](core/README.md): ortak iş mantığı ve sözleşmeler
+- [`pipeline/`](pipeline/README.md): aylık ve senaryo orkestrasyonu
+- [`services/`](services/README.md): iç YDA/LCA ve raporlama servisleri
+- [`data_schemas/`](data_schemas/README.md): girdi şablonları ve veri sözleşmeleri
+- [`outputs/runtime/`](outputs/runtime/README.md): üretilen çalışma zamanı çıktıları
 
-## Quick Start
+## Hızlı Başlangıç
 
 ```bash
 pip install -r requirements.txt
 python -m app.app
 ```
 
-Open: `http://127.0.0.1:5050`
+Açın: `http://127.0.0.1:5050`
 
-## Minimal Demo Flow
+## Minimal Demo Akışı
 
-1. Put the required Excel/CSV files into `outputs/runtime/`.
-2. Start the Flask app with `python -m app.app`.
-3. Open the dashboard in the browser.
-4. Use the monthly data and pipeline pages to prepare inputs and run a monthly pipeline.
-5. Inspect generated files in `outputs/runtime/`, especially:
+1. Gerekli Excel/CSV dosyalarını `outputs/runtime/` içine yerleştirin.
+2. Flask uygulamasını `python -m app.app` ile başlatın.
+3. Tarayıcıda kontrol panelini açın.
+4. Aylık veri ve pipeline sayfalarını kullanarak girdileri hazırlayın ve aylık pipeline çalıştırın.
+5. `outputs/runtime/` içindeki üretilen dosyaları inceleyin; özellikle:
    - `matches_LCA_{YYYY-MM}.xlsx`
    - `process_capacity_monthly_{YYYY-MM}.xlsx`
    - `selected_matches_{YYYY-MM}.xlsx`
 
-## Running The Monthly Pipeline
+## Aylık Pipeline Çalıştırma
 
-The application expects its working directory to be the repository root. Runtime files are read from and written to `outputs/runtime/`.
+Uygulama, çalışma dizininin depo kökü olmasını bekler. Çalışma zamanı dosyaları `outputs/runtime/` içinden okunur ve yine buraya yazılır.
 
-If the required reference files are present, the monthly pipeline can be triggered from the UI or programmatically from the `pipeline` package.
+Gerekli referans dosyaları mevcutsa aylık pipeline hem arayüzden hem de `pipeline` paketi üzerinden programatik olarak tetiklenebilir.
 
-## Scenario Runs
+## Senaryo Çalıştırmaları
 
-Scenario analysis builds on an existing monthly run and applies modified waste or capacity conditions before re-running scoring and optimization.
+Senaryo analizi, mevcut bir aylık çalışmayı temel alır ve puanlama ile optimizasyonu yeniden çalıştırmadan önce değiştirilmiş atık veya kapasite koşullarını uygular.
 
-Example:
+Örnek:
 
 ```python
 from pipeline.scenario import ScenarioWasteBounds, run_scenario_pipeline
@@ -73,15 +73,15 @@ run_scenario_pipeline(
 
 ## Configuration
 
-| Variable | Meaning |
+| Değişken | Anlamı |
 |---|---|
-| `LCA_API_URL` / `LCA_SERVICE_URL` | LCA base URL; defaults to the local Flask app at `/api/lca` |
-| `GAMS_EXE` | Absolute path to `gams.exe` if GAMS is used |
-| `USE_MOCK_LCA` | `1` uses a mock LCA path instead of HTTP |
+| `LCA_API_URL` / `LCA_SERVICE_URL` | LCA temel adresi; varsayılan olarak yerel Flask uygulamasındaki `/api/lca` kullanılır |
+| `GAMS_EXE` | GAMS kullanılacaksa `gams.exe` için mutlak yol |
+| `USE_MOCK_LCA` | `1` ise HTTP yerine sahte/mock LCA akışı kullanılır |
 
-The main path settings are defined in `core.config`, including `RUNTIME_DIR = outputs/runtime`.
+Ana yol ayarları `core.config` içinde tanımlanır; buna `RUNTIME_DIR = outputs/runtime` da dahildir.
 
-## What Reviewers Should Inspect First
+## İnceleyiciler Önce Neye Bakmalı
 
 - `docs/EVALUATOR_GUIDE.md`
 - `docs/ARCHITECTURE.md`
@@ -89,11 +89,11 @@ The main path settings are defined in `core.config`, including `RUNTIME_DIR = ou
 - `pipeline/monthly.py`
 - `services/lca/calculator.py`
 
-## Packaging Notes
+## Paketleme Notları
 
-When sharing this repository as a zip:
+Bu depoyu zip olarak paylaşırken:
 
-- exclude `.venv/`
-- exclude `__pycache__/`
-- exclude large temporary outputs unless they are part of the demo
-- include a small representative sample of runtime inputs or outputs if reviewers need a reproducible walkthrough
+- `.venv/` klasörünü dahil etmeyin
+- `__pycache__/` klasörünü dahil etmeyin
+- Demo parçası değilse büyük geçici çıktıları dahil etmeyin
+- İnceleyicilerin tekrar üretilebilir bir akış görmesi gerekiyorsa küçük ve temsilî bir çalışma zamanı girdi/çıktı örneği ekleyin

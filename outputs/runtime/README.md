@@ -1,27 +1,27 @@
 # outputs/runtime
 
-Runtime exchange directory for local runs.
+Yerel çalıştırmalar için çalışma zamanı alışveriş dizini.
 
-## Purpose
+## Amaç
 
-This folder is where the application reads working input files from and writes generated output files to.
+Bu klasör, uygulamanın çalışma girdi dosyalarını okuduğu ve üretilen çıktı dosyalarını yazdığı ana dizindir.
 
-## Typical Inputs
+## Tipik Girdiler
 
 - `factories.xlsx`
 - `processes.xlsx`
 - `waste_streams.xlsx`
 - `waste_process_links.xlsx`
 - `process_capacity.csv`
-- monthly status and capacity factor files
+- aylık durum ve kapasite faktörü dosyaları
 
-## Typical Outputs
+## Tipik Çıktılar
 
 - `matches_LCA_{YYYY-MM}.xlsx`
 - `process_capacity_monthly_{YYYY-MM}.xlsx`
 - `selected_matches_{YYYY-MM}.xlsx`
 
-## Notes
+## Notlar
 
-- this folder is intentionally ignored in git except for this README
-- evaluators can inspect this folder after a run to understand the system’s concrete inputs and outputs
+- bu klasör, bu README dışında bilinçli olarak git tarafından yok sayılır
+- değerlendiriciler, sistemin somut girdi ve çıktılarını anlamak için bir çalıştırmadan sonra bu klasörü inceleyebilir

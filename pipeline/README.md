@@ -1,25 +1,25 @@
 # pipeline
 
-Workflow orchestration layer for monthly runs, scenarios, and simulation.
+Aylık çalıştırmalar, senaryolar ve simülasyon için iş akışı orkestrasyon katmanı.
 
-## Responsibilities
+## Sorumluluklar
 
-- monthly pipeline execution
-- scenario pipeline execution
-- digital twin style simulation helpers
-- exporting selected results
+- aylık pipeline çalıştırma
+- senaryo pipeline çalıştırma
+- dijital ikiz tarzı simülasyon yardımcıları
+- seçili sonuçları dışa aktarma
 
-## Key Files
+## Temel Dosyalar
 
-- `monthly.py`: main monthly orchestration
-- `scenario.py`: scenario-based reruns and constraints
-- `digital_twin.py`: simulation-oriented adjustments
-- `selected_export.py`: selected output export helpers
+- `monthly.py`: ana aylık orkestrasyon
+- `scenario.py`: senaryo tabanlı yeniden çalıştırmalar ve kısıtlar
+- `digital_twin.py`: simülasyon odaklı ayarlamalar
+- `selected_export.py`: seçili çıktı dışa aktarım yardımcıları
 
-## Inputs
+## Girdiler
 
-Reads reference and runtime data from `outputs/runtime/` and shared logic from `core/`.
+Referans ve çalışma zamanı verilerini `outputs/runtime/` içinden, ortak mantığı ise `core/` katmanından okur.
 
-## Outputs
+## Çıktılar
 
-Writes generated match, capacity, and selection files back to `outputs/runtime/`.
+Üretilen eşleşme, kapasite ve seçim dosyalarını tekrar `outputs/runtime/` içine yazar.

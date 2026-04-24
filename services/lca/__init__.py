@@ -1,1 +1,1 @@
-"""LCA calculation service used by the Flask app."""
+"""Flask uygulaması tarafından kullanılan LCA hesaplama servisi."""

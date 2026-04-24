@@ -1,12 +1,12 @@
 # services
 
-Internal service modules used by the application and pipeline.
+Uygulama ve pipeline tarafından kullanılan iç servis modülleri.
 
-## Subfolders
+## Alt Klasörler
 
-- `lca/`: local lifecycle assessment calculations, database models, and initialization
-- `reporter/`: report generation logic, prompts, and LLM-facing utilities
+- `lca/`: yerel yaşam döngüsü değerlendirmesi hesapları, veritabanı modelleri ve ilklendirme
+- `reporter/`: rapor üretim mantığı, prompt dosyaları ve LLM odaklı yardımcılar
 
-## Purpose
+## Amaç
 
-This folder groups service-style modules that are logically separate from the Flask app and from the core business-rule layer.
+Bu klasör, Flask uygulamasından ve çekirdek iş kuralı katmanından mantıksal olarak ayrılan servis tarzı modülleri bir araya getirir.

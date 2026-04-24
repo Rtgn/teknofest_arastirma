@@ -1,25 +1,25 @@
-# Evaluator Guide
+# Değerlendirici Rehberi
 
-This guide is for competition evaluators who want to understand the project quickly without reading the full codebase.
+Bu rehber, tüm kod tabanını okumadan projeyi hızlıca anlamak isteyen yarışma değerlendiricileri içindir.
 
-## Project Purpose
+## Projenin Amacı
 
-The project supports industrial symbiosis analysis at OSB scale. It helps identify which waste streams from one factory can be used by another process, estimates environmental and economic impact, and selects the best feasible set of matches through optimization.
+Proje, OSB ölçeğinde endüstriyel simbiyoz analizini destekler. Bir fabrikanın hangi atık akışlarının başka bir proses tarafından kullanılabileceğini belirlemeye yardımcı olur, çevresel ve ekonomik etkiyi tahmin eder ve optimizasyon yoluyla en uygun eşleşme kümesini seçer.
 
-## Core Value
+## Temel Değer
 
-The system combines four layers in one workflow:
+Sistem, dört katmanı tek bir iş akışında birleştirir:
 
-1. Structured industrial input data
-2. LCA-based impact estimation
-3. Composite scoring
-4. Optimization-based selection
+1. Yapılandırılmış endüstriyel girdi verisi
+2. YDA/LCA tabanlı etki tahmini
+3. Bileşik puanlama
+4. Optimizasyon tabanlı seçim
 
-This makes the output more explainable than a simple rule-based matching list.
+Bu yapı, çıktıları yalnızca kural tabanlı bir eşleşme listesinden daha açıklanabilir hale getirir.
 
-## What Is In The Zip
+## Zip İçinde Neler Var
 
-The repository is divided into clear modules:
+Depo, açık sorumluluklara sahip modüllere ayrılmıştır:
 
 - `app/`: user interface and local API layer
 - `core/`: business rules and reusable logic
@@ -29,11 +29,11 @@ The repository is divided into clear modules:
 - `data_schemas/templates/`: input templates
 - `outputs/runtime/`: generated working files
 
-See [`PROJECT_STRUCTURE.md`](PROJECT_STRUCTURE.md) for the full map.
+Tam harita için [`PROJECT_STRUCTURE.md`](PROJECT_STRUCTURE.md) dosyasına bakın.
 
-## Recommended Review Path
+## Önerilen İnceleme Sırası
 
-If you only have a few minutes, review in this order:
+Kısıtlı zamanınız varsa şu sırayla inceleyin:
 
 1. [`../README.md`](../README.md)
 2. [`ARCHITECTURE.md`](ARCHITECTURE.md)
@@ -41,18 +41,18 @@ If you only have a few minutes, review in this order:
 4. [`../pipeline/README.md`](../pipeline/README.md)
 5. [`../services/README.md`](../services/README.md)
 
-## End-To-End Flow
+## Uçtan Uca Akış
 
-1. Reference files are placed in `outputs/runtime/`.
-2. The monthly pipeline builds candidate matches.
-3. The LCA service computes impact metrics for each candidate.
-4. Scoring combines environmental and economic dimensions.
-5. Optimization chooses a feasible subset of matches.
-6. Results are written back to `outputs/runtime/` and can be explored in the Flask UI.
+1. Referans dosyaları `outputs/runtime/` içine yerleştirilir.
+2. Aylık pipeline eşleşme adaylarını üretir.
+3. LCA servisi her aday için etki metriklerini hesaplar.
+4. Puanlama, çevresel ve ekonomik boyutları birleştirir.
+5. Optimizasyon, uygulanabilir eşleşme alt kümesini seçer.
+6. Sonuçlar `outputs/runtime/` içine yazılır ve Flask arayüzünde incelenebilir.
 
-## Main Inputs
+## Ana Girdiler
 
-Typical required inputs include:
+Tipik gerekli girdiler şunlardır:
 
 - `factories.xlsx`
 - `processes.xlsx`
@@ -61,38 +61,38 @@ Typical required inputs include:
 - `process_capacity.csv`
 - supporting templates such as resource use, emission factors, and monthly status files
 
-The input schema definitions are documented in [`../data_schemas/README.md`](../data_schemas/README.md).
+Girdi şeması tanımları [`../data_schemas/README.md`](../data_schemas/README.md) içinde belgelenmiştir.
 
-## Main Outputs
+## Ana Çıktılar
 
-Important generated outputs include:
+Önemli üretilen çıktılar şunlardır:
 
 - `matches_LCA_{YYYY-MM}.xlsx`
 - `process_capacity_monthly_{YYYY-MM}.xlsx`
 - `selected_matches_{YYYY-MM}.xlsx`
 - optimization support artifacts written during runs
 
-## How To Run A Basic Demo
+## Temel Demo Nasıl Çalıştırılır
 
 ```bash
 pip install -r requirements.txt
 python -m app.app
 ```
 
-Open `http://127.0.0.1:5050`.
+`http://127.0.0.1:5050` adresini açın.
 
-## Explainability Notes
+## Açıklanabilirlik Notları
 
-The project is explainable because:
+Proje şu nedenlerle açıklanabilirdir:
 
-- the data contracts are visible in Excel/CSV templates
-- the LCA calculation logic is implemented in readable Python code
-- the architecture separates concerns by folder
-- runtime inputs and outputs are kept in a dedicated directory
-- optimization is a final selection layer, not a black box replacing the full pipeline
+- veri sözleşmeleri Excel/CSV şablonlarında açıkça görülebilir
+- LCA hesaplama mantığı okunabilir Python kodu ile uygulanmıştır
+- mimari, sorumlulukları klasör bazında ayırır
+- çalışma zamanı girdi ve çıktıları ayrı bir dizinde tutulur
+- optimizasyon, tüm pipeline’ı gizleyen bir kara kutu değil; son seçim katmanıdır
 
-## Known Boundaries
+## Bilinen Sınırlar
 
-- GAMS execution depends on local availability of the GAMS executable.
-- Some workflows expect prepared runtime files in `outputs/runtime/`.
-- The lightweight SQLite layer is used for LCA profiles and factors, while the main application data still uses Excel/CSV runtime files.
+- GAMS çalıştırma yeteneği, yerelde GAMS yürütülebilir dosyasının bulunmasına bağlıdır.
+- Bazı akışlar, `outputs/runtime/` içinde hazırlanmış çalışma zamanı dosyaları bekler.
+- Hafif SQLite katmanı LCA profilleri ve faktörleri için kullanılır; ana uygulama verisi ise hâlâ Excel/CSV çalışma zamanı dosyalarını kullanır.

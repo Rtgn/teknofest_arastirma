@@ -1,60 +1,60 @@
-# Project Structure
+# Proje Yapısı
 
-This file provides a fast map of the repository for reviewers.
+Bu dosya, inceleyiciler için deponun hızlı bir haritasını sunar.
 
 ```text
 teknofest_arastirma/
-├── app/                 Flask UI and local HTTP endpoints
-├── core/                Shared business rules, config, parsing, scoring
-├── data_schemas/        Input templates and column contracts
-├── docs/                Architecture and evaluator-facing documentation
-├── optimization/        GAMS/optimization integration and result readers
+├── app/                 Flask arayüzü ve yerel HTTP uç noktaları
+├── core/                Ortak iş kuralları, yapılandırma, ayrıştırma, puanlama
+├── data_schemas/        Girdi şablonları ve sütun sözleşmeleri
+├── docs/                Mimari ve değerlendiriciye yönelik dokümantasyon
+├── optimization/        GAMS/optimizasyon entegrasyonu ve sonuç okuyucuları
 ├── outputs/
-│   └── runtime/         Runtime inputs and generated outputs
-├── pipeline/            Monthly and scenario orchestration
+│   └── runtime/         Çalışma zamanı girdileri ve üretilen çıktılar
+├── pipeline/            Aylık ve senaryo orkestrasyonu
 ├── services/
-│   ├── lca/             Local LCA service logic and SQLite models
-│   └── reporter/        Reporting utilities and prompts
-└── utils/               One-off helper scripts and builders
+│   ├── lca/             Yerel LCA servis mantığı ve SQLite modelleri
+│   └── reporter/        Raporlama yardımcıları ve prompt dosyaları
+└── utils/               Tek seferlik yardımcı betikler ve üreticiler
 ```
 
-## Folder Responsibilities
+## Klasör Sorumlulukları
 
 ### `app/`
 
-Contains the Flask entrypoint, templates, static assets, and UI-facing data access helpers.
+Flask giriş noktasını, şablonları, statik varlıkları ve arayüz odaklı veri erişim yardımcılarını içerir.
 
 ### `core/`
 
-Contains reusable domain logic such as config, scoring, period handling, ID parsing, LCA client contracts, and data preparation helpers.
+Yapılandırma, puanlama, dönem işleme, kimlik ayrıştırma, LCA istemci sözleşmeleri ve veri hazırlama yardımcıları gibi yeniden kullanılabilir alan mantığını içerir.
 
 ### `pipeline/`
 
-Contains the orchestration logic for monthly runs, scenario runs, digital twin simulation, and exporting selected outputs.
+Aylık çalıştırmalar, senaryo çalıştırmaları, dijital ikiz simülasyonu ve seçilen çıktıların dışa aktarımı için orkestrasyon mantığını içerir.
 
 ### `services/`
 
-Contains internal services:
+İç servisleri içerir:
 
-- `lca/`: local lifecycle assessment calculations and profile/factor persistence
-- `reporter/`: report generation logic and prompt templates
+- `lca/`: yerel yaşam döngüsü değerlendirmesi hesaplamaları ve profil/faktör kalıcılığı
+- `reporter/`: rapor üretim mantığı ve prompt şablonları
 
 ### `optimization/`
 
-Contains builders and readers around optimization, including GAMS-oriented CSV preparation and result extraction.
+GAMS odaklı CSV hazırlama ve sonuç çıkarımı dahil olmak üzere optimizasyon çevresindeki üretici ve okuyucu bileşenleri içerir.
 
 ### `data_schemas/`
 
-Contains Excel/CSV templates and schema-level documentation so the inputs remain explicit and reviewable.
+Girdilerin açık ve denetlenebilir kalması için Excel/CSV şablonları ile şema seviyesinde dokümantasyonu içerir.
 
 ### `outputs/runtime/`
 
-Contains the working files used and produced during local runs. This is the main runtime exchange point for the app and pipeline.
+Yerel çalıştırmalar sırasında kullanılan ve üretilen çalışma dosyalarını içerir. Uygulama ile pipeline arasındaki ana çalışma zamanı alışveriş noktası burasıdır.
 
 ### `docs/`
 
-Contains reviewer-facing explanations so the codebase can be understood without deep source inspection.
+Kod tabanının derin kaynak incelemesi olmadan anlaşılabilmesi için inceleyici odaklı açıklamaları içerir.
 
 ### `utils/`
 
-Contains small helper scripts that are useful during development or data preparation but are not part of the main application flow.
+Geliştirme veya veri hazırlığı sırasında faydalı olan ancak ana uygulama akışının parçası olmayan küçük yardımcı betikleri içerir.

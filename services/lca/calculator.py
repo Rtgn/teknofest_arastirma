@@ -78,25 +78,25 @@ def calculate_lca(
     transport_mode: str = "transport_truck",
 ):
     """
-    Spesifik bir eşleşmenin detaylı LCA ve Ekonomik metriklerini hesaplar.
+    Belirli bir eşleşme için ayrıntılı LCA ve ekonomik metrikleri hesaplar.
 
-    Çevre Ağırlıklı Versiyon (v2, IPCC AR6 uyumlu):
-    - Önlenen bertaraf CO₂: 120 kg/ton (Landfill CH4 + leachate, EPA/IPCC AR6)
+    Çevre ağırlıklı sürüm (v2, IPCC AR6 uyumlu):
+    - Önlenen bertaraf CO₂: 120 kg/ton (depolama alanı CH4 + sızıntı, EPA/IPCC AR6)
     - Taşıma emisyon faktörü: 0.089 kg CO₂/ton-km (EEA Road Freight 2023)
-    - Net CO₂ = (Önlenen bertaraf + Önlenen hammadde) - (Taşıma + İşleme)
+    - Net CO₂ = (önlenen bertaraf + önlenen hammadde) - (taşıma + işleme)
     """
     waste_amount_ton = waste_amount_kg / 1000.0 if waste_amount_kg else 0.0
     profile = _profile(db, process_id)
     transport_co2_kg_per_ton_km = _emission_factor(db, transport_mode, DEFAULT_TRANSPORT_CO2)
     grid_co2 = _emission_factor(db, "electricity", DEFAULT_GRID_CO2)
 
-    # 2. Önlenen Bertaraf (Avoided Disposal)
+    # 2. Önlenen bertaraf
     # IPCC AR6 Landfill emisyon faktörü: depolama alanı metan (CH4) + sızdırma
     # ~100-140 kg CO2e/ton aralığı → merkezi değer 120 kullanılıyor
     avoided_disposal_co2 = waste_amount_ton * AVOIDED_DISPOSAL_CO2_PER_TON
     disposal_cost_saving = waste_amount_ton * LEGACY_DISPOSAL.get(waste_id, DEFAULT_DISPOSAL_COST_PER_TON)
 
-    # 3. Geri Kazanım ve Önlenen Hammadde (Recovery & Avoided Virgin Material)
+    # 3. Geri kazanım ve önlenen hammadde
     rec_info = LEGACY_RECOVERY.get(waste_id, DEFAULT_RECOVERY)
     final_recovery_rate = rec_info["Recovery Rate"] * profile.recovery_efficiency
     recovered_amount_kg = waste_amount_kg * final_recovery_rate
@@ -104,12 +104,12 @@ def calculate_lca(
     target_res = rec_info["Target Resource Type"]
     avoided_virgin_co2 = recovered_amount_kg * LEGACY_EMISSIONS.get(target_res, 0.0)
 
-    # 4. İşleme Yükü (Processing Burden)
+    # 4. İşleme yükü
     # Prosesin bu atığı işlerken harcadığı elektrik vb.
     processing_energy_kwh = waste_amount_ton * profile.energy_kwh_per_ton
     processing_co2 = processing_energy_kwh * grid_co2
 
-    # 5. Taşıma Yükü (Transport Burden)
+    # 5. Taşıma yükü
     transport_co2 = waste_amount_ton * distance_km * transport_co2_kg_per_ton_km
 
     # 6. NET CO2 HESABI (tCO2e)

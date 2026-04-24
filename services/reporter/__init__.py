@@ -1,1 +1,1 @@
-"""Optional reporting utilities."""
+"""İsteğe bağlı raporlama yardımcıları."""

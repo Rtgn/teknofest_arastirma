@@ -1,1 +1,1 @@
-"""Utility scripts and helpers."""
+"""Yardımcı betikler ve araçlar."""

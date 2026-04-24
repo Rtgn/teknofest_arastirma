@@ -1,6 +1,6 @@
 """
-matches + kapasite DataFrame'lerinden GAMS girişi: CSV dosyaları.
-matches.gdx üretimi build_gdx.gms + csv2gdx ile GAMS tarafında yapılır (Python API yok).
+Eşleşme ve kapasite DataFrame'lerinden GAMS girdisi olan CSV dosyalarını üretir.
+`matches.gdx` üretimi, Python API olmadan `build_gdx.gms` ve `csv2gdx` ile GAMS tarafında yapılır.
 """
 
 from __future__ import annotations

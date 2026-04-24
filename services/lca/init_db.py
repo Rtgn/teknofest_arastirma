@@ -34,7 +34,7 @@ def init_db():
             )
             added += 1
 
-        # Runtime proseslerinden eksik LCA profillerini ekle.
+        # Çalışma zamanı proseslerinden eksik LCA profillerini ekle.
         proc_file = RUNTIME_DIR / "processes.xlsx"
         if proc_file.exists():
             df = pd.read_excel(proc_file)

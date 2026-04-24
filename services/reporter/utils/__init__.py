@@ -1,1 +1,1 @@
-"""Reporter helper modules."""
+"""Raporlayıcı yardımcı modülleri."""

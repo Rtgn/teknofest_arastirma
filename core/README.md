@@ -1,25 +1,25 @@
 # core
 
-Shared business logic and application-wide contracts.
+Ortak iş mantığı ve uygulama genelinde kullanılan sözleşmeler.
 
-## Responsibilities
+## Sorumluluklar
 
-- configuration and environment variables
-- period parsing and file naming
-- ID parsing and normalization
-- scoring and derived metrics
-- LCA client integration
-- data cleaning and matching support
+- yapılandırma ve ortam değişkenleri
+- dönem ayrıştırma ve dosya adlandırma
+- kimlik ayrıştırma ve normalizasyon
+- puanlama ve türetilmiş metrikler
+- LCA istemci entegrasyonu
+- veri temizleme ve eşleştirme desteği
 
-## Key Files
+## Temel Dosyalar
 
-- `config.py`: path and environment configuration
-- `period.py`: period parsing and filename helpers
-- `scoring.py`: sustainability scoring logic
-- `lca_client.py`: LCA request/response integration
-- `factory_ids.py`: factory ID normalization
+- `config.py`: yol ve ortam yapılandırması
+- `period.py`: dönem ayrıştırma ve dosya adı yardımcıları
+- `scoring.py`: sürdürülebilirlik puanlama mantığı
+- `lca_client.py`: LCA istek/yanıt entegrasyonu
+- `factory_ids.py`: fabrika kimliği normalizasyonu
 
-## Used By
+## Kullanan Modüller
 
 - `app/`
 - `pipeline/`

@@ -1,24 +1,24 @@
 # app
 
-Flask application layer for the project.
+Projenin Flask uygulama katmanı.
 
-## Responsibilities
+## Sorumluluklar
 
-- dashboard and UI pages
-- monthly input management endpoints
-- simulation endpoints
-- pipeline-triggering endpoints
-- local LCA HTTP routes
+- kontrol paneli ve arayüz sayfaları
+- aylık girdi yönetimi uç noktaları
+- simülasyon uç noktaları
+- pipeline tetikleme uç noktaları
+- yerel LCA HTTP rotaları
 
-## Key Files
+## Temel Dosyalar
 
-- `app.py`: Flask entrypoint and route definitions
-- `data_access.py`: UI-oriented reads from runtime outputs
-- `monthly_data_io.py`: monthly input read/write helpers
-- `templates/`: Jinja templates for pages
-- `static/`: CSS and static assets
+- `app.py`: Flask giriş noktası ve rota tanımları
+- `data_access.py`: çalışma zamanı çıktılarından arayüz odaklı okumalar
+- `monthly_data_io.py`: aylık girdi okuma/yazma yardımcıları
+- `templates/`: sayfa şablonları
+- `static/`: CSS ve statik varlıklar
 
-## Depends On
+## Bağımlı Olduğu Klasörler
 
 - `core/`
 - `pipeline/`

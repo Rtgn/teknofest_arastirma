@@ -1,5 +1,5 @@
 """
-selected_matches.csv (GAMS Put ciktisi) icinden secilen match_id listesi.
+`selected_matches.csv` içinden seçilen `match_id` listesini okuma yardımcıları.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ SELECTED_MATCHES_CSV = "selected_matches.csv"
 
 
 def _recover_mangled_pc5_semicolon_lines(lines: list[str]) -> pd.DataFrame:
-    """csvout.pc=5 ile Put birlikte bozulan satirlardan match_id ve level cikarir."""
+    """`csvout.pc=5` ile Put birlikte bozulmuş satırlardan `match_id` ve `level` çıkarır."""
     data: list[dict[str, Any]] = []
     for line in lines[1:]:
         line = line.strip()

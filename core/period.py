@@ -8,7 +8,7 @@ import re
 
 
 def parse_period(period: str) -> tuple[int, int]:
-    """'2026-05' -> (2026, 5)."""
+    """`2026-05` değerini `(2026, 5)` ikilisine dönüştürür."""
     s = str(period).strip()
     m = re.match(r"^(\d{4})-(\d{1,2})$", s)
     if not m:
@@ -20,7 +20,7 @@ def parse_period(period: str) -> tuple[int, int]:
 
 
 def format_period(year: int, month: int) -> str:
-    """(2026, 5) -> '2026-05'."""
+    """`(2026, 5)` değerini `2026-05` metnine dönüştürür."""
     if not (1 <= month <= 12):
         raise ValueError("month 1–12 olmalı")
     return f"{year}-{month:02d}"

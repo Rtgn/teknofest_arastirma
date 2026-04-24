@@ -1,1 +1,1 @@
-"""Symbiosis v2 app package. Calistirma: ``python -m app.app`` (repo kokunden)."""
+"""Symbiosis v2 uygulama paketi. Çalıştırma: ``python -m app.app`` (repo kökünden)."""
