@@ -93,6 +93,5 @@ Proje şu nedenlerle açıklanabilirdir:
 
 ## Bilinen Sınırlar
 
-- GAMS çalıştırma yeteneği, yerelde GAMS yürütülebilir dosyasının bulunmasına bağlıdır.
 - Bazı akışlar, `outputs/runtime/` içinde hazırlanmış çalışma zamanı dosyaları bekler.
 - Hafif SQLite katmanı LCA profilleri ve faktörleri için kullanılır; ana uygulama verisi ise hâlâ Excel/CSV çalışma zamanı dosyalarını kullanır.

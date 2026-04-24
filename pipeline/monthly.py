@@ -1,5 +1,5 @@
 """
-Aylık üretim pipeline: runtime Excel → LCA → temizlik → CSV → MILP (varsayılan PuLP+CBC veya GAMS) → selected_matches.
+Aylık üretim pipeline: runtime Excel → LCA → temizlik → MILP (PuLP+CBC) → selected_matches.
 """
 
 from __future__ import annotations
@@ -20,9 +20,6 @@ from core.config import (
     ENV_SYMBIOSIS_STRICT_MATCHES,
     RUNTIME_DIR,
     allow_self_symbiosis,
-    default_build_gdx_gms_path,
-    default_new3_gms_path,
-    resolve_symbiosis_solver,
 )
 from core.data_cleaning import clean_matches, clean_optimization_results
 from core.matches_ready_builder import ensure_matches_lca_ready
@@ -45,8 +42,6 @@ from core.period import (
 )
 from core.match_derived_metrics import apply_literature_transport_cost, compute_tech_score_series
 from core.scoring import recompute_sustainability_scores
-from optimization.gdx_builder import build_gdx_from_frames
-from optimization.gams_runner import ensure_model_file, is_gams_available, run_gams_model
 from optimization.result_reader import SELECTED_MATCHES_CSV, extract_selected_rows
 from pipeline.selected_export import filter_selected_matches
 from core.factory_ids import (
@@ -403,74 +398,32 @@ def run_monthly_pipeline(
             )
     df_excel_out.to_excel(out_matches_path, index=False)
 
-    try:
-        build_gdx_from_frames(df_clean, cap_out, runtime, label=period)
-    except Exception as e:
-        return {"status": "failed", "period": period, "error": f"GAMS CSV: {e}", "clean_report": clean_report}
-
-    solver_choice = resolve_symbiosis_solver()
     milp_report: Optional[dict[str, Any]] = None
+    try:
+        from optimization.pulp_symbiosis import solve_symbiosis_milp
 
-    if solver_choice == "pulp":
-        try:
-            from optimization.pulp_symbiosis import solve_symbiosis_milp
-
-            milp_report = solve_symbiosis_milp(
-                df_clean,
-                cap_out,
-                osb_limit,
-                selected_csv=runtime / SELECTED_MATCHES_CSV,
-            )
-        except ImportError as e:
-            return {
-                "status": "failed",
-                "period": period,
-                "error": f"PuLP yok: pip install pulp — {e}",
-                "matches_lca_path": str(out_matches_path),
-                "clean_report": clean_report,
-            }
-        except Exception as e:
-            return {
-                "status": "failed",
-                "period": period,
-                "error": f"MILP: {e}",
-                "matches_lca_path": str(out_matches_path),
-                "clean_report": clean_report,
-            }
-    else:
-        gms_src = default_new3_gms_path()
-        build_src = default_build_gdx_gms_path()
-        try:
-            ensure_model_file(runtime, gms_src)
-            ensure_model_file(runtime, build_src)
-        except Exception as e:
-            return {
-                "status": "failed",
-                "period": period,
-                "error": str(e),
-                "clean_report": clean_report,
-            }
-
-        if not is_gams_available():
-            return {
-                "status": "failed",
-                "period": period,
-                "error": "GAMS yürütülebilir dosyası bulunamadı (GAMS_EXE veya PATH).",
-                "matches_lca_path": str(out_matches_path),
-                "clean_report": clean_report,
-            }
-
-        try:
-            run_gams_model(runtime, "build_gdx.gms", list_options="lo=2")
-            run_gams_model(runtime, "new3.gms", list_options="lo=2")
-        except Exception as e:
-            return {
-                "status": "failed",
-                "period": period,
-                "error": f"GAMS: {e}",
-                "matches_lca_path": str(out_matches_path),
-                "clean_report": clean_report,
-            }
+        milp_report = solve_symbiosis_milp(
+            df_clean,
+            cap_out,
+            osb_limit,
+            selected_csv=runtime / SELECTED_MATCHES_CSV,
+        )
+    except ImportError as e:
+        return {
+            "status": "failed",
+            "period": period,
+            "error": f"PuLP yok: pip install pulp — {e}",
+            "matches_lca_path": str(out_matches_path),
+            "clean_report": clean_report,
+        }
+    except Exception as e:
+        return {
+            "status": "failed",
+            "period": period,
+            "error": f"MILP: {e}",
+            "matches_lca_path": str(out_matches_path),
+            "clean_report": clean_report,
+        }
 
     selected_csv = runtime / SELECTED_MATCHES_CSV
     raw_path = runtime / selected_raw_filename(period)
@@ -500,7 +453,6 @@ def run_monthly_pipeline(
         "triggered_by": triggered_by,
         "matches_lca_path": str(out_matches_path),
         "process_capacity_path": str(cap_path),
-        "matches_gdx": str(runtime / "matches.gdx"),
         "selected_matches_csv": str(selected_csv),
         "selected_matches_path": str(sel_path),
         "selected_raw_path": str(raw_path),
@@ -508,7 +460,7 @@ def run_monthly_pipeline(
         "matches_selected": len(selected_clean),
         "osb_limit": osb_limit,
         "clean_report": clean_report,
-        "solver": solver_choice,
+        "solver": "pulp",
     }
     if milp_report is not None:
         out["milp_report"] = milp_report

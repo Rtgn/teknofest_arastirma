@@ -1,12 +1,12 @@
 # teknofest_arastirma — Mimari Özeti
 
-Bu belge, OSB ölçeğinde **endüstriyel simbiyoz** karar destek sisteminin v2 çekirdeğini anlatır: LCA tabanlı çevresel/ekonomik metrikler, bileşik skorlar ve **GAMS** ile binary seçim optimizasyonu. Eski `tk_arastirma` deposundaki bilimsel hedef korunur; kod ve veri düzeni sadeleştirilir.
+Bu belge, OSB ölçeğinde **endüstriyel simbiyoz** karar destek sisteminin v2 çekirdeğini anlatır: LCA tabanlı çevresel/ekonomik metrikler, bileşik skorlar ve **PuLP/CBC** ile binary seçim optimizasyonu. Eski `tk_arastirma` deposundaki bilimsel hedef korunur; kod ve veri düzeni sadeleştirilir.
 
 ---
 
 ## 1. Tasarım ilkeleri
 
-- **Tek sorumluluk:** `core` (iş kuralları ve dış servis sözleşmeleri), `optimization` (GDX/GAMS/sonuç okuma), `pipeline` (üretim ve senaryo orkestrasyonu), `data_schemas` (şablon ve sütun sözleşmesi), `app` (Flask arayüzü + HTTP uçları), `services` (LCA ve raporlama), `utils` (yardımcı betikler).
+- **Tek sorumluluk:** `core` (iş kuralları ve dış servis sözleşmeleri), `optimization` (PuLP MILP çözücüsü + sonuç okuma), `pipeline` (üretim ve senaryo orkestrasyonu), `data_schemas` (şablon ve sütun sözleşmesi), `app` (Flask arayüzü + HTTP uçları), `services` (LCA ve raporlama), `utils` (yardımcı betikler).
 - **Periyot:** Tüm üretim çıktıları `YYYY-MM` ile etiketlenir; senaryo koşuları ayrı bir sanal periyot veya etiket ile izole edilir (v1 ile uyumlu düşünülmüştür).
 - **Girdi/çıktı ayrımı:** Ham Excel/CSV şablonları `data_schemas/templates/` altında; çalışma sırasında üretilen aylık dosyalar `outputs/runtime/` altında tutulur.
 
@@ -16,15 +16,14 @@ Bu belge, OSB ölçeğinde **endüstriyel simbiyoz** karar destek sisteminin v2 
 
 | Modül | Klasör | Görev |
 |-------|--------|--------|
-| **Yapılandırma ve periyot** | `core/` | Periyot parse/format, yol politikası, ortam değişkenleri (LCA URL, GAMS exe). |
+| **Yapılandırma ve periyot** | `core/` | Periyot parse/format, yol politikası, ortam değişkenleri (LCA URL, mock bayrağı). |
 | **Veri temizliği** | `core/data_cleaning.py` | Tekrar satırlar, winsorization, sayısal zorlama (v1 `data_cleaner` ile aynı rol). |
 | **Skor** | `core/scoring.py` | LCA çıktılarından sürdürülebilirlik / env / econ / tech bileşimi. |
 | **LCA istemcisi** | `core/lca_client.py` | HTTP batch çağrısı (`/calculate_lca/batch`); sonuçları DataFrame’e işleme. |
-| **GAMS giriş CSV** | `optimization/gdx_builder.py` | Eşleşme + kapasite tablolarından `gams_*.csv`; `matches.gdx` yalnızca GAMS’ta (`build_gdx.gms` + `csv2gdx`). |
-| **GAMS çalıştırma** | `optimization/gams_runner.py` | Yalnızca `subprocess` ile `gams.exe` (`build_gdx.gms` sonra `new3.gms`). |
+| **MILP çözücü** | `optimization/pulp_symbiosis.py` | PuLP + CBC ile binary seçim MILP'i; `selected_matches.csv` (`match_id;level`) yazar. |
 | **Sonuç okuma** | `optimization/result_reader.py` | `selected_matches.csv` (`match_id`, `level`) → eşik sonrası `match_id` listesi. |
-| **Aylık pipeline** | `pipeline/monthly.py` | LCA öncesi üretim → (opsiyonel) `waste_coefficients` ile **kg min–max** → yardımcı prosesleri eleme → `process_metadata` skor yer tutucusu → temizlik → GAMS → seçilen sonuçlar (`run_monthly_pipeline` uçtan uca sonra). |
-| **Senaryo pipeline** | `pipeline/scenario.py` | `ScenarioWasteBounds` ile senaryo **atık kg min–max** → `emission_limits_report` ile **BREF limit** raporu → modifikasyon / LCA / GAMS (`run_scenario_pipeline` uçtan uca sonra). |
+| **Aylık pipeline** | `pipeline/monthly.py` | LCA öncesi üretim → (opsiyonel) `waste_coefficients` ile **kg min–max** → yardımcı prosesleri eleme → `process_metadata` skor yer tutucusu → temizlik → MILP → seçilen sonuçlar (`run_monthly_pipeline` uçtan uca sonra). |
+| **Senaryo pipeline** | `pipeline/scenario.py` | `ScenarioWasteBounds` ile senaryo **atık kg min–max** → `emission_limits_report` ile **BREF limit** raporu → modifikasyon / LCA / MILP (`run_scenario_pipeline` uçtan uca sonra). |
 | **Uygulama** | `app/` | Tek Flask uygulaması: UI, pipeline API’leri ve yerel LCA route’ları. |
 | **Servisler** | `services/` | Dahili LCA ve raporlama modülleri. |
 | **Yardımcılar** | `utils/` | Tek seferlik yardımcı betikler ve şablon üreticiler. |
@@ -44,9 +43,9 @@ Yerel LCA API (`/api/lca/...`) → net CO₂, kâr, taşıma vb.
         ↓
 Skor birleştirme (ağırlıklar) + veri temizliği
         ↓
-GAMS giriş CSV + osb_limit.txt + build_gdx.gms → matches.gdx + new3.gms
+PuLP (CBC) symbiosis MILP (kapasite + OSB + atık/proses teklik kısıtları)
         ↓
-GAMS → selected_matches.csv
+selected_matches.csv (match_id;level)
         ↓
 Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 ```
@@ -64,7 +63,7 @@ Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 5. **Türetim:** `matches_LCA_{YYYY-MM}.xlsx`, `process_capacity_monthly_{YYYY-MM}.xlsx`, `osb_limit.txt`.
 6. **LCA:** `core/lca_client.py` batch.
 7. **Temizlik:** `core/data_cleaning.py`.
-8. **Optimizasyon:** `optimization/gdx_builder.py` → `gams_runner.py` → `result_reader.py`.
+8. **Optimizasyon:** `optimization/pulp_symbiosis.py` → `result_reader.py`.
 9. **Çıktı:** Seçilen satırlar; durum katmanı ileride `app` veya ayrı bir kalıcı katmana taşınabilir.
 
 ---
@@ -76,17 +75,17 @@ Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 3. **Emisyon limitleri raporu:** `bref_emission_limits.xlsx` (veya DataFrame) `emission_limits_report` ile senaryo çıktısına eklenir (`limits`, `scenario_id`, `base_period`).
 4. **Modifikasyon:** Atık çarpanı, kapasite çarpanı, satır eleme, LCA yeniden koşumu (v1 ile aynı fikir).
 5. **Skor + temizlik:** Üretim ile aynı fonksiyonlar; ağırlıklar senaryoya göre değişebilir.
-6. **GAMS:** Ayrı çalışma dizini (`scenario_runs/{id}/` benzeri).
+6. **MILP:** Ayrı çalışma dizini (`scenario_runs/{id}/` benzeri).
 7. **Çıktı:** Senaryo etiketi ile ayrılmış sonuçlar + rapor sözlüğünde emisyon limitleri özeti.
 
 ---
 
-## 6. GAMS entegrasyonu
+## 6. MILP çözücü
 
-- **Model dosyası:** `optimization/gms/README.md` — `new3.gms` buraya veya yapılandırılan yola konur (bu repoda şimdilik kopyalanmaz).
-- **Ara dosyalar:** `gams_*.csv` (Python), `matches.gdx` (`csv2gdx`), `osb_limit.txt`, `selected_matches.csv` (GAMS `Put`, binary `x` için `level`).
-- **Python:** `import gams` yok; yalnızca CSV yazma/okuma ve `gams.exe` çağrısı.
-- **Ortam:** `GAMS_EXE` veya `PATH` üzerinden `gams.exe` (`resolve_gams_executable`).
+- **Model:** `optimization/pulp_symbiosis.py` — PuLP + CBC (saf Python, ekstra kurulum yok).
+- **Amaç:** `w_env · E + w_score · S` üzerinden seçilen `match_id` setini maksimize et.
+- **Kısıtlar:** atık başına ≤ 1 seçim, hedef proses başına ≤ 1 seçim, proses kapasite üst sınırı, OSB toplam kütle.
+- **Ara dosyalar:** `osb_limit.txt` (rapor amaçlı), `selected_matches.csv` (`match_id;level`).
 
 ---
 
@@ -127,7 +126,6 @@ teknofest_arastirma/
 │   ├── lca/
 │   └── reporter/
 ├── optimization/
-│   └── gms/          # README: .gms dosyası konumu
 ├── pipeline/
 ├── utils/
 ├── outputs/
@@ -144,7 +142,7 @@ teknofest_arastirma/
 
 1. `core.period` + yapılandırma (BASE_DIR, LCA URL).
 2. LCA istemcisi ve skor fonksiyonları (v1 ile sütun uyumu).
-3. GDX builder + result reader (v1 `gams_doc` / `match_ids` ile parity).
+3. PuLP MILP çözücüsü + result reader (v1 `match_ids` ile parity).
 4. `pipeline/monthly` tek uçtan çağrılabilir API.
 5. Senaryo modifikasyon sözleşmesi ve `pipeline/scenario`.
 6. `web` blueprint’leri ve kalıcı katman (opsiyonel).

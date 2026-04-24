@@ -79,7 +79,7 @@ def solve_symbiosis_milp(
         zip(one["match_id"], pd.to_numeric(one["waste_amount_monthly"], errors="coerce").fillna(0.0))
     )
 
-    # gdx_builder._write_gams_csv_inputs ile aynı: eşleşmede görünen her j için Cap yoksa BIG_CAP
+    # Eşleşmede görünen her j için Cap yoksa BIG_CAP
     cap_df = capacity_df.copy().assign(process_id=capacity_df["process_id"].astype(str))
     cap_map_base = dict(
         zip(cap_df["process_id"], pd.to_numeric(cap_df["capacity_monthly"], errors="coerce"))
@@ -121,7 +121,7 @@ def solve_symbiosis_milp(
     # OSB toplam kütle
     prob += pulp.lpSum(W_map[m] * x[m] for m in mid_list) <= float(osb_limit)
 
-    # Proses kapasitesi (çok büyük Cap → kısıt ekleme; GAMS'taki BIG_CAP ile aynı mantık)
+    # Proses kapasitesi (çok büyük Cap → kısıt ekleme)
     df_j = df.assign(_pj=df["process_id"].astype(str))
     for j, sub in df_j.groupby("_pj"):
         j = str(j).strip()

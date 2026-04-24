@@ -1,5 +1,5 @@
 """
-Senaryo pipeline: baz periyot + modifikasyonlar → LCA → GAMS → senaryo sonuçları.
+Senaryo pipeline: baz periyot + modifikasyonlar → LCA → MILP → senaryo sonuçları.
 """
 
 from __future__ import annotations
@@ -20,12 +20,7 @@ _V2_ROOT = Path(__file__).resolve().parent.parent
 if str(_V2_ROOT) not in sys.path:
     sys.path.insert(0, str(_V2_ROOT))
 
-from core.config import (
-    RUNTIME_DIR,
-    default_build_gdx_gms_path,
-    default_new3_gms_path,
-    resolve_symbiosis_solver,
-)
+from core.config import RUNTIME_DIR
 from core.data_cleaning import clean_matches, clean_optimization_results
 from core.lca_client import run_lca_batch_for_matches
 from core.resource_templates import (
@@ -44,8 +39,6 @@ from core.period import (
 )
 from core.match_derived_metrics import apply_literature_transport_cost, compute_tech_score_series
 from core.scoring import recompute_sustainability_scores
-from optimization.gdx_builder import build_gdx_from_frames
-from optimization.gams_runner import ensure_model_file, is_gams_available, run_gams_model
 from optimization.result_reader import SELECTED_MATCHES_CSV, extract_selected_rows
 from pipeline.monthly import placeholder_process_metadata_for_scoring
 from pipeline.selected_export import filter_selected_matches
@@ -234,66 +227,30 @@ def run_scenario_pipeline(
     df_clean, clean_report = clean_matches(matches)
     df_clean.to_excel(out_m, index=False)
 
+    milp_report: Optional[dict[str, Any]] = None
     try:
-        build_gdx_from_frames(df_clean, cap_df, work, label=f"SIM{scenario_id}")
+        from optimization.pulp_symbiosis import solve_symbiosis_milp
+
+        milp_report = solve_symbiosis_milp(
+            df_clean,
+            cap_df,
+            osb_limit,
+            selected_csv=work / SELECTED_MATCHES_CSV,
+        )
+    except ImportError as e:
+        return {
+            "status": "failed",
+            "error": f"PuLP yok: pip install pulp — {e}",
+            "emission_limits_report": report_limits,
+            "matches_path": str(out_m),
+        }
     except Exception as e:
         return {
             "status": "failed",
-            "error": f"GAMS CSV: {e}",
+            "error": f"MILP: {e}",
             "emission_limits_report": report_limits,
+            "matches_path": str(out_m),
         }
-
-    solver_choice = resolve_symbiosis_solver()
-    milp_report: Optional[dict[str, Any]] = None
-
-    if solver_choice == "pulp":
-        try:
-            from optimization.pulp_symbiosis import solve_symbiosis_milp
-
-            milp_report = solve_symbiosis_milp(
-                df_clean,
-                cap_df,
-                osb_limit,
-                selected_csv=work / SELECTED_MATCHES_CSV,
-            )
-        except ImportError as e:
-            return {
-                "status": "failed",
-                "error": f"PuLP yok: pip install pulp — {e}",
-                "emission_limits_report": report_limits,
-                "matches_path": str(out_m),
-            }
-        except Exception as e:
-            return {
-                "status": "failed",
-                "error": f"MILP: {e}",
-                "emission_limits_report": report_limits,
-                "matches_path": str(out_m),
-            }
-    else:
-        try:
-            ensure_model_file(work, default_new3_gms_path())
-            ensure_model_file(work, default_build_gdx_gms_path())
-        except Exception as e:
-            return {"status": "failed", "error": str(e), "emission_limits_report": report_limits}
-
-        if not is_gams_available():
-            return {
-                "status": "failed",
-                "error": "GAMS bulunamadı.",
-                "emission_limits_report": report_limits,
-                "matches_path": str(out_m),
-            }
-
-        try:
-            run_gams_model(work, "build_gdx.gms", list_options="lo=2")
-            run_gams_model(work, "new3.gms", list_options="lo=2")
-        except Exception as e:
-            return {
-                "status": "failed",
-                "error": f"GAMS: {e}",
-                "emission_limits_report": report_limits,
-            }
 
     selected_csv = work / SELECTED_MATCHES_CSV
     raw_path = work / selected_raw_filename(sim_p)
@@ -337,7 +294,7 @@ def run_scenario_pipeline(
         "matches_selected": len(selected_clean),
         "emission_limits_report": report_limits,
         "clean_report": clean_report,
-        "solver": solver_choice,
+        "solver": "pulp",
     }
     if milp_report is not None:
         out["milp_report"] = milp_report

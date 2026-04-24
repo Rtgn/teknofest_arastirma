@@ -1,6 +1,6 @@
 # Veri sözlüğü — teknofest_arastirma
 
-Kolon adları **Python pipeline** (`generate_monthly_data_3step` ile uyumlu), **GAMS GDX** (`gams_doc._build_and_write_gdx`) ve **ORM** (`webapp/models`) ile aynı isimlendirme düzenini hedefler.
+Kolon adları **Python pipeline** (`generate_monthly_data_3step` ile uyumlu) ve **ORM** (`webapp/models`) ile aynı isimlendirme düzenini hedefler.
 
 **Tipler:** `string`, `int`, `float`, `bool` (Excel’de 0/1), `month_1_12` (1–12 arası takvim ayı).
 
@@ -195,7 +195,7 @@ Virgin kaynak emisyon faktörleri; LCA `LEGACY_EMISSIONS` ile uyumlu.
 
 ## 8. matches_ready (`matches_ready_template.xlsx`)
 
-**Girdi şablonu:** Eski projedeki `matches_LCA_ready.xlsx` ile aynı rol. Bu dosya doldurulduktan sonra aylık üretim; çıktı **`matches_LCA_{YYYY-MM}.xlsx`** olur ve **GAMS’e giden** tablo budur (LCA + skor sonrası).
+**Girdi şablonu:** Eski projedeki `matches_LCA_ready.xlsx` ile aynı rol. Bu dosya doldurulduktan sonra aylık üretim; çıktı **`matches_LCA_{YYYY-MM}.xlsx`** olur ve **MILP çözücüsüne giden** tablo budur (LCA + skor sonrası).
 
 ### 8a. Kullanıcının doldurduğu zorunlu kolonlar (şablonda yer alır)
 
@@ -215,9 +215,9 @@ Virgin kaynak emisyon faktörleri; LCA `LEGACY_EMISSIONS` ile uyumlu.
 | `tech_score` | Hayır | float | 0–1 teknik uygunluk; boşsa skor adımında varsayılan kullanılır | — |
 | `match_id` | Hayır | string | Sabit kimlik; boşsa satır indeksi ile üretilir | — |
 
-### 8c. `matches_LCA_{YYYY-MM}.xlsx` dosyasında pipeline’ın ürettiği (GAMS / temizlik için gerekli; şablonda kullanıcı doldurmaz)
+### 8c. `matches_LCA_{YYYY-MM}.xlsx` dosyasında pipeline’ın ürettiği (MILP / temizlik için gerekli; şablonda kullanıcı doldurmaz)
 
-| Kolon | Kaynak | Tip | Açıklama | GAMS |
+| Kolon | Kaynak | Tip | Açıklama | MILP |
 |-------|--------|-----|----------|------|
 | `physical_state` | `waste_streams` birleşimi | string | Taşıma modu | LCA isteği |
 | `waste_amount_monthly` | Hesaplanan kg/ay | float | Çarpanlı aylık miktar; `waste_coefficients.kg_per_ton_min/max` ile kırpılabilir | `W(m)` |
@@ -226,10 +226,10 @@ Virgin kaynak emisyon faktörleri; LCA `LEGACY_EMISSIONS` ile uyumlu.
 | `env_score` | Skor adımı | float | 0–1 | `E(m)` |
 | `economic_score` | Skor adımı | float | 0–1 | — |
 | `sustainability_score` | Skor adımı | float | 0–1 bileşik | `S(m)` |
-| `match_id` | İndeks veya girdi | string | GDX `m` | `m` |
+| `match_id` | İndeks veya girdi | string | Binary değişken etiketi `m` | `m` |
 | LCA detay sütunları | LCA servisi | float | Örn. `transport_emissions`, `processing_emissions`, `avoided_emissions`, `recovered_mass_monthly`, `transport_cost` | — |
 
-**GAMS doğrudan kullanan kolonlar:** `match_id`, `waste_id`, `process_id`, `sustainability_score` (`S`), `env_score` (`E`), `waste_amount_monthly` (`W`).
+**MILP çözücüsünün doğrudan kullandığı kolonlar:** `match_id`, `waste_id`, `process_id`, `sustainability_score` (`S`), `env_score` (`E`), `waste_amount_monthly` (`W`).
 
 **Örnek girdi satırı (şablon):** `"W-01" | "P-12" | 101 | 102 | 15000.0 | 45.2 | 0.85`
 

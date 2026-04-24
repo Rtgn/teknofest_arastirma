@@ -76,7 +76,6 @@ run_scenario_pipeline(
 | Değişken | Anlamı |
 |---|---|
 | `LCA_API_URL` / `LCA_SERVICE_URL` | LCA temel adresi; varsayılan olarak yerel Flask uygulamasındaki `/api/lca` kullanılır |
-| `GAMS_EXE` | GAMS kullanılacaksa `gams.exe` için mutlak yol |
 | `USE_MOCK_LCA` | `1` ise HTTP yerine sahte/mock LCA akışı kullanılır |
 
 Ana yol ayarları `core.config` içinde tanımlanır; buna `RUNTIME_DIR = outputs/runtime` da dahildir.

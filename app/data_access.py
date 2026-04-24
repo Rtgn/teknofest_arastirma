@@ -178,8 +178,8 @@ def load_matches_for_network(
     source: 'matches_lca' | 'selected'
     Dönüş: (dataframe, hata_mesajı veya None)
 
-    Seçili görünüm: ``selected_matches_*.xlsx`` farklı ``process_id`` biçimleri içerebilir (GAMS sonrası
-    üretilmiş önbellek). Bu yüzden ``selected_matches.csv`` ve güncel ``matches_LCA_*.xlsx``
+    Seçili görünüm: ``selected_matches_*.xlsx`` farklı ``process_id`` biçimleri içerebilir (eski
+    çalıştırmalardan kalma önbellek). Bu yüzden ``selected_matches.csv`` ve güncel ``matches_LCA_*.xlsx``
     varsa satırlar her zaman bu ikisinden ``match_id`` ile birleştirilir (pipeline ile aynı).
     """
     base = Path(rt) if rt else runtime_dir()
@@ -206,8 +206,7 @@ def load_matches_for_network(
                         f"{SELECTED_MATCHES_CSV} içindeki match_id değerleri güncel "
                         f"{matches_lca_filename(period)} ile eşleşmiyor. "
                         "waste_process_links / eşleşme tablosu değiştiyse tam pipeline'ı "
-                        "(GAMS new3.gms dahil) yeniden çalıştırın; böylece seçimler yeni "
-                        "match_id sırasına göre üretilir.",
+                        "yeniden çalıştırın; böylece seçimler yeni match_id sırasına göre üretilir.",
                     )
                 return df, None
             except Exception as e:

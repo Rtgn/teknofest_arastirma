@@ -1,21 +1,18 @@
 # optimization
 
-Optimizasyon entegrasyon katmanı.
+Symbiosis MILP çözücü katmanı.
 
 ## Sorumluluklar
 
-- optimizasyon girdi tablolarını hazırlamak
-- dış optimizasyon iş akışını çağırmak
+- eşleşme tablosundan MILP kurup çözmek (atık/proses/OSB kısıtları altında sürdürülebilirlik + çevresel skoru maksimize eder)
 - seçili eşleşme sonuçlarını tekrar uygulamaya okumak
 
 ## Temel Dosyalar
 
-- `gdx_builder.py`: optimizasyon odaklı CSV girdilerini hazırlar
-- `gams_runner.py`: GAMS'ı alt süreç çağrısı ile çalıştırır
-- `result_reader.py`: seçili eşleşme çıktılarını okur
-- `gms/`: GAMS tarafındaki model dosyaları ve notlar
+- `pulp_symbiosis.py`: PuLP + CBC ile symbiosis MILP çözücü; `selected_matches.csv` (`match_id;level`) yazar
+- `result_reader.py`: `selected_matches.csv` + ilgili `matches_LCA_*.xlsx` dosyasından seçilen satırları döndürür
 
 ## Notlar
 
 - bu katman, optimizasyon sorumlulukları izole kalsın diye `core/` katmanından bilinçli olarak ayrılmıştır
-- tam optimizasyon yolu için GAMS'ın ortamda bulunması gerekir
+- yalnızca `pulp` (CBC varsayılan) gereklidir; ek kurulum yok

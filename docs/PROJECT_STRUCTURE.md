@@ -8,7 +8,7 @@ teknofest_arastirma/
 ├── core/                Ortak iş kuralları, yapılandırma, ayrıştırma, puanlama
 ├── data_schemas/        Girdi şablonları ve sütun sözleşmeleri
 ├── docs/                Mimari ve değerlendiriciye yönelik dokümantasyon
-├── optimization/        GAMS/optimizasyon entegrasyonu ve sonuç okuyucuları
+├── optimization/        PuLP symbiosis MILP çözücüsü ve sonuç okuyucuları
 ├── outputs/
 │   └── runtime/         Çalışma zamanı girdileri ve üretilen çıktılar
 ├── pipeline/            Aylık ve senaryo orkestrasyonu
@@ -41,7 +41,7 @@ Aylık çalıştırmalar, senaryo çalıştırmaları, dijital ikiz simülasyonu
 
 ### `optimization/`
 
-GAMS odaklı CSV hazırlama ve sonuç çıkarımı dahil olmak üzere optimizasyon çevresindeki üretici ve okuyucu bileşenleri içerir.
+PuLP tabanlı symbiosis MILP çözücüsünü ve `selected_matches.csv` okuyucusunu içerir.
 
 ### `data_schemas/`
 

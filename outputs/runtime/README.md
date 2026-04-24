@@ -53,7 +53,7 @@ Kartesyen aday sayısını düşürmek için `data_runtime/ewc_nace_map.csv` (ve
 ## Çıktılar (örnek periyot `2026-05`)
 
 - `matches_LCA_2026-05.xlsx`, `process_capacity_monthly_2026-05.xlsx`
-- `osb_limit.txt`, GAMS giriş CSV’leri (`gams_S.csv`, …), `matches.gdx` (`build_gdx.gms` + `csv2gdx`), `selected_matches.csv` (`new3.gms`)
+- `osb_limit.txt`, `selected_matches.csv` (PuLP+CBC MILP çözücüsü)
 - `selected_raw_2026-05.xlsx`, `selected_matches_2026-05.xlsx`
 
 LCA testi için: `USE_MOCK_LCA=1` ortam değişkeni (gerçek HTTP yerine mock).
