@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Aylık veri girdileri{% endblock %}
-{% block page_title %}Aylık veri — fabrika / proses / kapasite{% endblock %}
+{% block page_title %}Aylık veri girdileri{% endblock %}
 
 {% block content %}
 <p class="code-path">Veri kökü: <code>{{ runtime_path }}</code></p>
@@ -18,35 +18,33 @@
   </p>
 </div>-->
 
-<div class="chart-card" style="padding:16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+<div class="chart-card" style="padding:16px 18px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
   <button type="button" class="btn-primary" id="btnLoad">Dosyalardan yükle</button>
-  <button type="button" class="btn-primary" id="btnSave" style="background:var(--accent-purple);">Kaydet</button>
-  <button type="button" id="btnEnsure" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);cursor:pointer;">
-    Eksik ay satırlarını doldur
-  </button>
-  <span id="saveMsg" style="font-size:13px;color:var(--accent-green);display:none;"></span>
-  <span id="loadErr" style="font-size:13px;color:var(--accent-orange);display:none;"></span>
+  <button type="button" class="btn-ghost" id="btnSave">Kaydet</button>
+  <button type="button" class="btn-ghost" id="btnEnsure">Eksik ay satırlarını tamamla</button>
+  <span id="saveMsg" style="font-size:12.5px;color:var(--accent-green);display:none;margin-left:6px;"></span>
+  <span id="loadErr" style="font-size:12.5px;color:var(--accent-orange);display:none;margin-left:6px;"></span>
 </div>
 
-<div class="chart-card" style="padding:16px;margin-bottom:16px;">
-  <span class="menu-label">Aylık tam pipeline (LCA + MILP)</span>
-  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:8px;">
-    <label>Periyot YYYY-MM
+<div class="chart-card" style="padding:16px 18px;margin-bottom:14px;">
+  <span class="menu-label" style="padding:0;">Aylık tam pipeline — LCA + optimizasyon</span>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px;">
+    <label style="font-size:12.5px;color:var(--text-secondary);">Dönem
       <input type="text" id="pipePeriod" placeholder="2026-05" value="{{ base_periods[-1] if base_periods else '' }}"
-        style="margin-left:8px;padding:6px 10px;border-radius:6px;border:1px solid var(--border);width:120px;background:var(--surface);color:var(--text);" />
+        style="margin-left:8px;padding:7px 10px;border-radius:6px;border:1px solid var(--border);width:130px;background:var(--bg-inset);color:var(--text-primary);font-family:var(--font-mono);font-size:12.5px;" />
     </label>
-    <button type="button" class="btn-primary" id="btnPipeline">Pipeline çalıştır</button>
+    <button type="button" class="btn-primary" id="btnPipeline">Çalıştır</button>
   </div>
-  <pre id="pipeOut" style="margin-top:12px;font-size:12px;white-space:pre-wrap;display:none;color:var(--text-secondary);"></pre>
+  <pre id="pipeOut" style="margin-top:14px;padding:12px;background:var(--bg-inset);border:1px solid var(--border);border-radius:6px;font-size:12px;white-space:pre-wrap;display:none;color:var(--text-secondary);font-family:var(--font-mono);"></pre>
 </div>
 
-<div class="chart-card" style="padding:12px;margin-bottom:12px;">
-  <span class="menu-label">Görünüm</span>
-  <select id="panelSelect" class="pill" style="margin-left:8px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);">
-    <option value="factory_status">Fabrika durumu (ay × status)</option>
-    <option value="process_status">Proses durumu (ay × status)</option>
-    <option value="capacity_factors">Kapasite faktörleri (fabrika × ay)</option>
-    <option value="process_capacity">Baz kapasite — ton/gün (proses başına)</option>
+<div class="chart-card" style="padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+  <span class="menu-label" style="padding:0;">Görünüm</span>
+  <select id="panelSelect" style="padding:7px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-inset);color:var(--text-primary);font-family:var(--font-body);font-size:13px;">
+    <option value="factory_status">Fabrika durumu · ay × status</option>
+    <option value="process_status">Proses durumu · ay × status</option>
+    <option value="capacity_factors">Kapasite faktörleri · fabrika × ay</option>
+    <option value="process_capacity">Baz kapasite · ton/gün (proses başına)</option>
   </select>
 </div>
 
@@ -119,7 +117,7 @@ function renderTonDay(container) {
   const rows = state.process_capacity || [];
   const pmap = state.labels.processes || {};
   if (!rows.length) {
-    container.innerHTML = '<p class="empty-state" style="padding:16px;">Kayıt yok. Önce <strong>Eksik ay satırlarını doldur</strong> ile process_capacity.csv oluşturun veya dosyayı yükleyin.</p>';
+    container.innerHTML = '<p class="empty-state" style="padding:20px;">Henüz kayıt yok. <strong>Eksik ay satırlarını tamamla</strong> düğmesiyle <code>process_capacity.csv</code> oluşturabilir ya da dosyayı elle yükleyebilirsiniz.</p>';
     return;
   }
   let html = '<div style="overflow:auto;max-height:420px;"><table class="data-table"><thead><tr><th>process_id</th><th>Ad</th><th>capacity_ton_per_day</th></tr></thead><tbody>';
@@ -215,17 +213,17 @@ document.getElementById('btnSave').addEventListener('click', () => {
     .then(r => r.json())
     .then(data => {
       if (data.status === 'success') {
-        msg.textContent = 'Kaydedildi.';
+        msg.textContent = '✓ Kaydedildi';
         msg.style.display = 'inline';
       } else {
-        alert(data.error || 'Kayıt hatası');
+        alert(data.error || 'Kayıt sırasında bir hata oluştu.');
       }
     })
     .catch(e => alert(e));
 });
 
 document.getElementById('btnEnsure').addEventListener('click', () => {
-  if (!confirm('Eksik (fabrika|proses × ay) satırları varsayılan 1 ile eklenecek. Devam?')) return;
+  if (!confirm('Eksik fabrika ve proses × ay satırları varsayılan değer 1 ile eklenecek. Devam edilsin mi?')) return;
   fetch('/api/monthly-inputs/ensure', { method: 'POST' })
     .then(r => r.json())
     .then(data => {
@@ -238,7 +236,7 @@ document.getElementById('btnPipeline').addEventListener('click', () => {
   const period = document.getElementById('pipePeriod').value.trim();
   const pre = document.getElementById('pipeOut');
   pre.style.display = 'block';
-  pre.textContent = 'Çalışıyor…';
+  pre.textContent = 'Çalıştırılıyor…';
   fetch('/api/monthly-pipeline/run', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

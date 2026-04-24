@@ -3,41 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Symbiosis v2{% endblock %} | OSB Analiz</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>{% block title %}Symbiosis v2{% endblock %} · OSB</title>
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
 </head>
 <body>
   <nav class="sidebar">
     <div class="sidebar-brand">
-      <div class="brand-icon">⬡</div>
+      <div class="brand-icon">S</div>
       <div class="brand-text">
-        <span class="brand-title">Symbiosis v2</span>
+        <span class="brand-title">Symbiosis <em>v2</em></span>
         <span class="brand-sub">OSB endüstriyel simbiyoz</span>
       </div>
     </div>
     <div class="sidebar-menu">
-      <span class="menu-label">MENÜ</span>
+      <span class="menu-label">Menü</span>
       <a href="{{ url_for('index') }}" class="menu-item {% if request.endpoint == 'index' %}active{% endif %}">
-        <span class="menu-icon">📊</span><span>Özet</span>
+        <span class="menu-icon">◆</span><span>Özet</span>
       </a>
       <a href="{{ url_for('network_page') }}" class="menu-item {% if request.endpoint == 'network_page' %}active{% endif %}">
-        <span class="menu-icon">🌐</span><span>Ağ haritası</span>
+        <span class="menu-icon">◇</span><span>Ağ haritası</span>
       </a>
       <a href="{{ url_for('pipeline_page') }}" class="menu-item {% if request.endpoint == 'pipeline_page' %}active{% endif %}">
-        <span class="menu-icon">🔄</span><span>Veri &amp; pipeline</span>
+        <span class="menu-icon">◈</span><span>Veri &amp; pipeline</span>
       </a>
       <a href="{{ url_for('monthly_data_page') }}" class="menu-item {% if request.endpoint == 'monthly_data_page' %}active{% endif %}">
-        <span class="menu-icon">📆</span><span>Aylık veri</span>
+        <span class="menu-icon">▤</span><span>Aylık veri</span>
       </a>
       <a href="{{ url_for('simulation_page') }}" class="menu-item {% if request.endpoint == 'simulation_page' %}active{% endif %}">
-        <span class="menu-icon">◈</span><span>Dijital ikiz</span>
+        <span class="menu-icon">◉</span><span>Dijital ikiz</span>
       </a>
     </div>
     <div class="sidebar-footer">
-      <span>Girdi: <code style="font-size:10px;color:var(--accent-blue);">outputs/runtime/</code></span>
+      <div>Girdi kökü</div>
+      <code>outputs/runtime/</code>
     </div>
   </nav>
 
@@ -45,8 +44,8 @@
     <div class="topbar">
       <h1 class="page-title">{% block page_title %}Özet{% endblock %}</h1>
       <div class="topbar-right">
-        <span class="live-badge">● Yerel</span>
-        <span id="live-date"></span>
+        <span class="live-badge">Yerel oturum</span>
+        <span id="live-date">—</span>
       </div>
     </div>
     <div class="content-area">
@@ -56,7 +55,10 @@
   <script>
     function tick() {
       const el = document.getElementById("live-date");
-      if (el) el.textContent = new Date().toLocaleString("tr-TR");
+      if (!el) return;
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      el.textContent = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} · ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
     }
     tick();
     setInterval(tick, 1000);

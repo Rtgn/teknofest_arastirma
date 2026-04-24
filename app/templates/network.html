@@ -5,13 +5,13 @@
 {% block content %}
 {% if not periods %}
 <div class="empty-state chart-card" style="padding:40px;">
-  <p><code>outputs/runtime/matches_LCA_*.xlsx</code> bulunamadi. Once aylik pipeline calistirin.</p>
+  <p><strong>Henüz eşleşme verisi yok.</strong></p>
+  <p style="margin-top:8px;"><code>outputs/runtime/matches_LCA_*.xlsx</code> dosyası bulunamadı. Önce aylık pipeline'ı çalıştırın.</p>
 </div>
 {% else %}
 
-<p class="network-intro" style="margin:0 0 16px;font-size:14px;color:var(--text-secondary);max-width:820px;">
-  <strong>Her seçili eşleşme</strong> için kaynak→hedef <strong>ayrı bir ok</strong> çizilir; aynı fabrika çiftinde birden fazla atık varsa oklar hafifçe yan yana kaydırılır.
-  Konumlar <code>outputs/runtime/factories.xlsx</code> icinden okunur. Veri: <code>selected_matches.csv</code> + <code>matches_LCA_*.xlsx</code>.
+<p class="network-intro" style="margin:0 0 18px;font-size:13.5px;color:var(--text-secondary);max-width:820px;line-height:1.6;">
+  Seçilen her eşleşme kaynak → hedef yönünde ayrı bir ok olarak çizilir. Aynı fabrika çifti arasında birden fazla atık akışı varsa oklar yan yana kaydırılır. Fabrika konumları <code>factories.xlsx</code> dosyasından okunur.
 </p>
 
 <div class="network-toolbar" style="align-items:flex-end;gap:16px;">
@@ -26,14 +26,14 @@
 </div>
 
 <div id="coordWarning" class="chart-card" style="display:none;padding:12px 16px;margin-bottom:12px;font-size:13px;color:var(--accent-orange);border-color:rgba(245,158,11,0.35);">
-  Konumlar tahmini: <code>factories.xlsx</code> eksik veya bazi tesisler tanimli degil. Koordinat icin <code>outputs/runtime/factories.xlsx</code> kullanin.
+  <strong>Konumlar tahminî.</strong> <code>factories.xlsx</code> eksik ya da bazı tesisler tanımlı değil. Gerçek koordinatlar için <code>outputs/runtime/factories.xlsx</code> dosyasını güncelleyin.
 </div>
 
 <div class="legend" id="basicLegend" style="flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:12px;">
   <span class="legend-item"><span class="dot blue"></span> Kaynak fabrika</span>
   <span class="legend-item"><span class="dot green"></span> Hedef fabrika</span>
   <span class="legend-item"><span class="dot orange"></span> Kaynak + hedef</span>
-  <span style="color:var(--text-secondary);">Kenar kalınlığı ∝ atık (kg)</span>
+  <span style="color:var(--text-dim);">Ok kalınlığı atık miktarıyla (kg) orantılıdır</span>
 </div>
 
 <div id="network-container">
@@ -41,7 +41,7 @@
 </div>
 
 <details style="margin-top:14px;" id="advGraph">
-  <summary style="cursor:pointer;font-size:13px;color:var(--text-secondary);">Alternatif görünüm (PyVis)</summary>
+  <summary style="cursor:pointer;font-size:13px;color:var(--text-secondary);">Alternatif görünüm — PyVis</summary>
   <div style="margin-top:10px;">
     <iframe class="network-iframe" id="graphIframe" title="PyVis ağ" style="min-height:420px;width:100%;border:1px solid var(--border);border-radius:8px;background:#0f172a;"></iframe>
   </div>
@@ -84,18 +84,17 @@ function loadNetwork(period, btn) {
       }
       drawNetwork(data);
       const s = data.stats || {};
-      document.getElementById('stat-matches').textContent = (s.matches || 0) + ' seçilen eşleşme';
+      document.getElementById('stat-matches').textContent = (s.matches || 0) + ' eşleşme';
       const up = s.unique_pairs != null ? s.unique_pairs : '—';
       document.getElementById('stat-edges').textContent =
-        (s.edges || 0) + ' ok · ' + up + ' benzersiz fabrika çifti';
+        (s.edges || 0) + ' ok · ' + up + ' fabrika çifti';
       const susEl = document.getElementById('stat-sus');
-      if (susEl) susEl.textContent = s.avg_sustainability != null
-        ? 'Ort. skor: ' + Number(s.avg_sustainability).toFixed(3)
-        : 'Ort. skor: —';
-      document.getElementById('stat-co2').textContent = 'Σ CO₂: ' + (s.co2 != null ? Number(s.co2).toFixed(2) : '—');
-      document.getElementById('stat-profit').textContent = 'Σ kâr: ' + (s.profit != null ? Number(s.profit).toFixed(2) : '—');
+      if (susEl) susEl.textContent = 'Ort. skor · ' + (s.avg_sustainability != null
+        ? Number(s.avg_sustainability).toFixed(3) : '—');
+      document.getElementById('stat-co2').textContent = 'Σ CO₂ · ' + (s.co2 != null ? Number(s.co2).toFixed(2) : '—');
+      document.getElementById('stat-profit').textContent = 'Σ kâr · ' + (s.profit != null ? Number(s.profit).toFixed(2) : '—');
       document.getElementById('stat-waste').textContent =
-        (s.waste_kg != null ? (s.waste_kg / 1000).toFixed(2) : '—') + ' t/ay';
+        'Atık · ' + (s.waste_kg != null ? (s.waste_kg / 1000).toFixed(2) : '—') + ' t/ay';
       document.getElementById('network-stats').classList.remove('hidden');
     })
     .catch(e => {
@@ -117,7 +116,7 @@ function drawNetwork(data) {
   if (!edges.length && !nodes.length) {
     Plotly.purge('networkPlot');
     document.getElementById('networkPlot').innerHTML =
-      '<div class="empty-state">Bu dönem için seçilen eşleşme yok veya fabrika koordinatı eksik.</div>';
+      '<div class="empty-state">Bu dönem için seçilen eşleşme yok ya da fabrika koordinatları eksik.</div>';
     return;
   }
 
