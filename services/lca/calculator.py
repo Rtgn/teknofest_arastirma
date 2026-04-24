@@ -22,28 +22,33 @@ PROCESSING_COST_PER_KWH = 0.2
 AVOIDED_DISPOSAL_CO2_PER_TON = 120.0
 
 
-def _read_legacy_excel(filename: str, builder):
+def _read_legacy_table(filename: str, builder):
     try:
-        return builder(pd.read_excel(os.path.join(BASE_DIR, filename)))
+        return builder(pd.read_csv(os.path.join(BASE_DIR, filename)))
+    except Exception:
+        return {}
+    try:
+        # Geriye dönük uyumluluk: eski kurulumlarda Excel dosyaları olabilir.
+        return builder(pd.read_excel(os.path.join(BASE_DIR, filename.replace(".csv", ".xlsx"))))
     except Exception:
         return {}
 
 
 # RAM'e al
-LEGACY_EMISSIONS = _read_legacy_excel(
-    "resource_emission.xlsx",
+LEGACY_EMISSIONS = _read_legacy_table(
+    "resource_emission.csv",
     lambda df: dict(zip(df["resource_type"], df["emission_factor_kg_co2_per_unit"])),
 )
-LEGACY_RECOVERY = _read_legacy_excel(
-    "waste_recovery.xlsx",
+LEGACY_RECOVERY = _read_legacy_table(
+    "waste_recovery.csv",
     lambda df: df.set_index("Waste ID")[["Recovery Rate", "Target Resource Type"]].to_dict("index"),
 )
-LEGACY_PRICES = _read_legacy_excel(
-    "resource_use.xlsx",
+LEGACY_PRICES = _read_legacy_table(
+    "resource_use.csv",
     lambda df: dict(zip(df["resource_type"], df["cost_per_unit"])),
 )
-LEGACY_DISPOSAL = _read_legacy_excel(
-    "waste_streams.xlsx",
+LEGACY_DISPOSAL = _read_legacy_table(
+    "waste_streams.csv",
     lambda df: dict(zip(df["waste_id"], df["disposal_cost_per_ton"])),
 )
 DEFAULT_DISPOSAL_COST_PER_TON = 50.0

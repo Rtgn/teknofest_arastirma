@@ -4,13 +4,13 @@
 
 {% block content %}
 <p style="color:var(--text-secondary);font-size:13.5px;line-height:1.6;max-width:820px;margin-bottom:18px;">
-  Seçilen baz ay için çarpanlar uygulanır, sürdürülebilirlik skorları yeniden ölçeklenir ve optimizasyon yeniden çözülür. LCA yeniden çağrılmaz. Baz döneme ait <code>matches_LCA_YYYY-MM.xlsx</code> ve <code>process_capacity_monthly_YYYY-MM.xlsx</code> dosyalarının önceden üretilmiş olması gerekir.
+  Seçilen baz ay için çarpanlar uygulanır, sürdürülebilirlik skorları yeniden ölçeklenir ve optimizasyon yeniden çözülür. LCA yeniden çağrılmaz. Baz döneme ait <code>matches_LCA_YYYY-MM.csv</code> ve <code>process_capacity_monthly_YYYY-MM.csv</code> dosyalarının önceden üretilmiş olması gerekir.
 </p>
 
 {% if not base_periods %}
 <div class="empty-state chart-card" style="padding:40px;">
   <p><strong>Baz dönem bulunamadı.</strong></p>
-  <p style="margin-top:8px;">Önce aylık pipeline ile en az bir <code>matches_LCA_YYYY-MM.xlsx</code> dosyası üretin.</p>
+  <p style="margin-top:8px;">Önce aylık pipeline ile en az bir <code>matches_LCA_YYYY-MM.csv</code> dosyası üretin.</p>
 </div>
 {% else %}
 

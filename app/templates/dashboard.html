@@ -44,7 +44,7 @@
 <div class="chart-card" style="margin-top:24px;padding:20px 22px;">
   <div class="table-header" style="margin:-20px -22px 14px;padding:14px 22px;">Son baz dönem <code>{{ dashboard_summary.latest_period }}</code></div>
   <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:18px;max-width:780px;">
-    Aşağıdaki potansiyel ağ metrikleri, bu döneme ait <code>matches_LCA_*.xlsx</code> tablosundan türetilir — optimizasyon öncesi tüm aday eşleşmeleri kapsar.
+    Aşağıdaki potansiyel ağ metrikleri, bu döneme ait <code>matches_LCA_*.csv</code> tablosundan türetilir — optimizasyon öncesi tüm aday eşleşmeleri kapsar.
   </p>
   <div class="kpi-grid">
     {% if ml %}
@@ -162,7 +162,7 @@
 {% elif not periods %}
 <div class="empty-state chart-card" style="margin-top:24px;">
   <p><strong>Henüz eşleşme dönemi yok.</strong></p>
-  <p style="margin-top:10px;max-width:560px;margin-left:auto;margin-right:auto;">Aylık pipeline çalıştırıldığında potansiyel ağ metrikleri ve dönem listesi burada görünecektir. Yukarıdaki envanter sayıları <code>factories.xlsx</code> ve <code>processes.xlsx</code> dosyalarından okunur.</p>
+  <p style="margin-top:10px;max-width:560px;margin-left:auto;margin-right:auto;">Aylık pipeline çalıştırıldığında potansiyel ağ metrikleri ve dönem listesi burada görünecektir. Yukarıdaki envanter sayıları <code>factories.csv</code> ve <code>processes.csv</code> dosyalarından okunur.</p>
 </div>
 {% endif %}
 

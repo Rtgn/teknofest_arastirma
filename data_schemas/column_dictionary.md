@@ -6,7 +6,7 @@ Kolon adları **Python pipeline** (`generate_monthly_data_3step` ile uyumlu) ve 
 
 ---
 
-## 1. factories (`factories_template.xlsx`)
+## 1. factories (`factories_template.csv`)
 
 OSB’deki tesisler; mesafe ve harita için koordinat.
 
@@ -21,7 +21,7 @@ OSB’deki tesisler; mesafe ve harita için koordinat.
 
 ---
 
-## 2. processes (`processes_template.xlsx`)
+## 2. processes (`processes_template.csv`)
 
 Üretim / geri kazanım prosesleri; hedef tarafta kapasite kısıtına bağlanır.
 
@@ -39,7 +39,7 @@ OSB’deki tesisler; mesafe ve harita için koordinat.
 
 ---
 
-## 3. waste_streams (`waste_streams_template.xlsx`)
+## 3. waste_streams (`waste_streams_template.csv`)
 
 Atık tanımı; LCA’de taşıma modu (`physical_state`) ve isteğe bağlı bertaraf maliyeti için kullanılır.
 
@@ -56,7 +56,7 @@ Atık tanımı; LCA’de taşıma modu (`physical_state`) ve isteğe bağlı ber
 
 ---
 
-## 3b. ewc_nace_map (`ewc_nace_map.csv` / `.xlsx`, `outputs/runtime/`)
+## 3b. ewc_nace_map (`ewc_nace_map.csv` / `.csv`, `outputs/runtime/`)
 
 Ön-eleme Filtre 1 (EWC → izin verilen NACE listesi). Çok satır: aynı `ewc_code` birden çok `nace_code` ile.
 
@@ -69,7 +69,7 @@ Atık tanımı; LCA’de taşıma modu (`physical_state`) ve isteğe bağlı ber
 
 ---
 
-## 4. waste_coefficients (`waste_coefficients_template.xlsx`)
+## 4. waste_coefficients (`waste_coefficients_template.csv`)
 
 Atık bazlı geri kazanım / hedef kaynak bilgisi; LCA servisindeki `waste_recovery` ile aynı rol (legacy uyumu). Aylık akış için isteğe bağlı **kg** sınırları ve meta alanlar.
 
@@ -88,7 +88,7 @@ Atık bazlı geri kazanım / hedef kaynak bilgisi; LCA servisindeki `waste_recov
 
 ---
 
-## 4b. process_metadata (`process_metadata.xlsx`)
+## 4b. process_metadata (`process_metadata.csv`)
 
 Proses başına BREF kaynak tüketimi / verim **aralıkları** ve referans metni; skor katmanına girdi (`placeholder_process_metadata_for_scoring`).
 
@@ -111,7 +111,7 @@ Proses başına BREF kaynak tüketimi / verim **aralıkları** ve referans metni
 
 ---
 
-## 4c. bref_emission_limits (`bref_emission_limits.xlsx`)
+## 4c. bref_emission_limits (`bref_emission_limits.csv`)
 
 Proses + emisyon parametresi bazlı limitler; **senaryo raporlaması** (`pipeline.scenario.emission_limits_report`).
 
@@ -128,7 +128,7 @@ Proses + emisyon parametresi bazlı limitler; **senaryo raporlaması** (`pipelin
 
 ---
 
-## 5. capacity_factors (`capacity_factors_template.xlsx`)
+## 5. capacity_factors (`capacity_factors_template.csv`)
 
 Fabrika bazlı aylık kapasite çarpanı (`generate_monthly_data` içindeki `get_capacity_factor`).
 
@@ -142,7 +142,7 @@ Fabrika bazlı aylık kapasite çarpanı (`generate_monthly_data` içindeki `get
 
 ---
 
-## 6. resource_use (`resource_use_template.xlsx`)
+## 6. resource_use (`resource_use_template.csv`)
 
 Kaynak birim ekonomisi; LCA `calculator` içinde `cost_per_unit` sözlüğü.
 
@@ -155,7 +155,7 @@ Kaynak birim ekonomisi; LCA `calculator` içinde `cost_per_unit` sözlüğü.
 
 ---
 
-## 7. resource_emission (`resource_emission_template.xlsx`)
+## 7. resource_emission (`resource_emission_template.csv`)
 
 Virgin kaynak emisyon faktörleri; LCA `LEGACY_EMISSIONS` ile uyumlu.
 
@@ -169,7 +169,7 @@ Virgin kaynak emisyon faktörleri; LCA `LEGACY_EMISSIONS` ile uyumlu.
 
 ---
 
-## 7a. waste_process_links (`waste_process_links.xlsx`) — otomatik veya elle
+## 7a. waste_process_links (`waste_process_links.csv`) — otomatik veya elle
 
 **Otomatik:** `core.waste_process_links_generator` — her `waste_id` için tüm (yardımcı olmayan) hedef proseslerle kartesyen satırlar; `python -m core.waste_process_links_generator` veya aylık pipeline başı.
 
@@ -185,7 +185,7 @@ Virgin kaynak emisyon faktörleri; LCA `LEGACY_EMISSIONS` ile uyumlu.
 | `transport_mode` | Evet | string | `liquid`→tanker, `solid`→truck, `gas`→pipeline, diğer→truck (LCA’ye normalize) |
 | `match_id` | Evet | int | 0,1,2,… benzersiz |
 
-**İsteğe bağlı girdi:** `process_capacity_monthly_YYYY-MM.xlsx` (yalnızca bilgi amaçlı log; üretim formülünde kullanılmaz).
+**İsteğe bağlı girdi:** `process_capacity_monthly_YYYY-MM.csv` (yalnızca bilgi amaçlı log; üretim formülünde kullanılmaz).
 
 **Eski minimal şema** (yalnızca `waste_id`, `target_process_id` / `process_id`, `waste_amount_base`): `matches_ready_builder` eski yolu kullanır; mesafe yeniden hesaplanır.
 
@@ -193,9 +193,9 @@ Virgin kaynak emisyon faktörleri; LCA `LEGACY_EMISSIONS` ile uyumlu.
 
 ---
 
-## 8. matches_ready (`matches_ready_template.xlsx`)
+## 8. matches_ready (`matches_ready_template.csv`)
 
-**Girdi şablonu:** Eski projedeki `matches_LCA_ready.xlsx` ile aynı rol. Bu dosya doldurulduktan sonra aylık üretim; çıktı **`matches_LCA_{YYYY-MM}.xlsx`** olur ve **MILP çözücüsüne giden** tablo budur (LCA + skor sonrası).
+**Girdi şablonu:** Eski projedeki `matches_LCA_ready.csv` ile aynı rol. Bu dosya doldurulduktan sonra aylık üretim; çıktı **`matches_LCA_{YYYY-MM}.csv`** olur ve **MILP çözücüsüne giden** tablo budur (LCA + skor sonrası).
 
 ### 8a. Kullanıcının doldurduğu zorunlu kolonlar (şablonda yer alır)
 
@@ -215,7 +215,7 @@ Virgin kaynak emisyon faktörleri; LCA `LEGACY_EMISSIONS` ile uyumlu.
 | `tech_score` | Hayır | float | 0–1 teknik uygunluk; boşsa skor adımında varsayılan kullanılır | — |
 | `match_id` | Hayır | string | Sabit kimlik; boşsa satır indeksi ile üretilir | — |
 
-### 8c. `matches_LCA_{YYYY-MM}.xlsx` dosyasında pipeline’ın ürettiği (MILP / temizlik için gerekli; şablonda kullanıcı doldurmaz)
+### 8c. `matches_LCA_{YYYY-MM}.csv` dosyasında pipeline’ın ürettiği (MILP / temizlik için gerekli; şablonda kullanıcı doldurmaz)
 
 | Kolon | Kaynak | Tip | Açıklama | MILP |
 |-------|--------|-----|----------|------|
@@ -235,7 +235,7 @@ Virgin kaynak emisyon faktörleri; LCA `LEGACY_EMISSIONS` ile uyumlu.
 
 ---
 
-## 9. factory_status (`factory_status_template.xlsx`)
+## 9. factory_status (`factory_status_template.csv`)
 
 Aylık fabrika durum çarpanı (`generate_monthly_data` içinde `f_status`).
 
@@ -249,7 +249,7 @@ Aylık fabrika durum çarpanı (`generate_monthly_data` içinde `f_status`).
 
 ---
 
-## 10. process_status (`process_status_template.xlsx`)
+## 10. process_status (`process_status_template.csv`)
 
 Aylık proses durum çarpanı (`p_status`).
 

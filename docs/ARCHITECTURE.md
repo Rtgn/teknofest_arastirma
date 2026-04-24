@@ -93,24 +93,24 @@ Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 
 | Şablon | Rol |
 |--------|-----|
-| `factories_template.xlsx` | Fabrika kimliği, ad, koordinat (harita/mesafe). |
-| `processes_template.xlsx` | Proses–fabrika bağlantısı, NACE vb. |
-| `waste_streams_template.xlsx` | Atık kimliği, EWC, proses bağlantısı, fiziksel hal (taşıma modu). |
-| `waste_coefficients_template.xlsx` | Atık/proses dönüşüm veya kullanım katsayıları (iş kuralına göre). |
-| `capacity_factors_template.xlsx` | Aylık kapasite çarpanları / üst sınırlar. |
-| `resource_use_template.xlsx` | Birim başına kaynak kullanımı (LCA profiline girdi olabilir). |
-| `resource_emission_template.xlsx` | Emisyon/kaynak faktörleri (servis veya yerel tablo). |
-| `matches_ready_template.xlsx` | Ham veya ön eşleşme adayları (kaynak/hedef, mesafe, miktar). |
-| `factory_status_template.xlsx` | Dönemsel fabrika durumu (isteğe bağlı). |
-| `process_status_template.xlsx` | Dönemsel proses durumu (isteğe bağlı). |
+| `factories_template.csv` | Fabrika kimliği, ad, koordinat (harita/mesafe). |
+| `processes_template.csv` | Proses–fabrika bağlantısı, NACE vb. |
+| `waste_streams_template.csv` | Atık kimliği, EWC, proses bağlantısı, fiziksel hal (taşıma modu). |
+| `waste_coefficients_template.csv` | Atık/proses dönüşüm veya kullanım katsayıları (iş kuralına göre). |
+| `capacity_factors_template.csv` | Aylık kapasite çarpanları / üst sınırlar. |
+| `resource_use_template.csv` | Birim başına kaynak kullanımı (LCA profiline girdi olabilir). |
+| `resource_emission_template.csv` | Emisyon/kaynak faktörleri (servis veya yerel tablo). |
+| `matches_ready_template.csv` | Ham veya ön eşleşme adayları (kaynak/hedef, mesafe, miktar). |
+| `factory_status_template.csv` | Dönemsel fabrika durumu (isteğe bağlı). |
+| `process_status_template.csv` | Dönemsel proses durumu (isteğe bağlı). |
 | `process_capacity_template.csv` | CSV alternatifi; toplu kapasite serisi. |
-| `process_metadata.xlsx` | Proses başına BREF kaynak aralıkları (su, enerji, elektrik, kimyasal, verim) ve BREF referans metni; skor katmanı için girdi. |
-| `bref_emission_limits.xlsx` | Proses + parametre bazlı emisyon limitleri (min/max, birim, BREF referansı); senaryo raporlaması ve uyum özetleri. |
+| `process_metadata.csv` | Proses başına BREF kaynak aralıkları (su, enerji, elektrik, kimyasal, verim) ve BREF referans metni; skor katmanı için girdi. |
+| `bref_emission_limits.csv` | Proses + parametre bazlı emisyon limitleri (min/max, birim, BREF referansı); senaryo raporlaması ve uyum özetleri. |
 
 **Kolon ekleri (mevcut şablonlar):**
 
-- `processes_template.xlsx`: `is_auxiliary_process` (0/1) — yardımcı proses; kapasite ve eşleşme üretiminde hariç tutulur.
-- `waste_coefficients_template.xlsx`: `kg_per_ton_min`, `kg_per_ton_max` (aylık kg kırpımı için), `recovery_method`, `potential_industrial_symbiosis`, `notes`.
+- `processes_template.csv`: `is_auxiliary_process` (0/1) — yardımcı proses; kapasite ve eşleşme üretiminde hariç tutulur.
+- `waste_coefficients_template.csv`: `kg_per_ton_min`, `kg_per_ton_max` (aylık kg kırpımı için), `recovery_method`, `potential_industrial_symbiosis`, `notes`.
 
 Çalışma anında üretilen dosya adları (v1 ile uyum): `matches_LCA_{YYYY-MM}.csv`, `process_capacity_monthly_{YYYY-MM}.csv`, `selected_matches_{YYYY-MM}.csv` — bunlar şablon değil **çıktı** kabul edilir ve `outputs/runtime/` altında tutulur.
 

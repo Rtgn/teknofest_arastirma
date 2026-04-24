@@ -10,7 +10,7 @@ Symbiosis MILP çözücü katmanı.
 ## Temel Dosyalar
 
 - `pulp_symbiosis.py`: PuLP + CBC ile symbiosis MILP çözücü; `selected_matches.csv` (`match_id;level`) yazar
-- `result_reader.py`: `selected_matches.csv` + ilgili `matches_LCA_*.xlsx` dosyasından seçilen satırları döndürür
+- `result_reader.py`: `selected_matches.csv` + ilgili `matches_LCA_*.csv` dosyasından seçilen satırları döndürür
 
 ## Notlar
 

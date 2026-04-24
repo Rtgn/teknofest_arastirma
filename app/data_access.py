@@ -192,14 +192,21 @@ def load_matches_for_network(
         if csv_path.is_file() and mca_path.is_file():
             try:
                 ids = set(read_selected_match_ids(csv_path))
-                df = extract_selected_rows(mca_path, csv_path)
-                if not df.empty:
-                    if not need.issubset(set(df.columns)):
-                        return (
-                            pd.DataFrame(),
-                            f"Eksik sütun: {need - set(df.columns)}",
-                        )
-                    return df, None
+                if ids:
+                    df = extract_selected_rows(mca_path, csv_path)
+                    if not df.empty:
+                        if not need.issubset(set(df.columns)):
+                            return (
+                                pd.DataFrame(),
+                                f"Eksik sütun: {need - set(df.columns)}",
+                            )
+                        return df, None
+                else:
+                    # Bazı çalıştırmalarda selected_matches_<period>.csv zaten satır-seviyesinde
+                    # seçili eşleşme tablosu olarak (virgül ayrımlı) yazılır; bunu doğrudan kullan.
+                    direct_df = pd.read_csv(csv_path)
+                    if not direct_df.empty and need.issubset(set(direct_df.columns)):
+                        return direct_df, None
                 if ids:
                     return (
                         pd.DataFrame(),

@@ -1,5 +1,5 @@
 """
-outputs/runtime/waste_streams.xlsx icindeki tum benzersiz ewc_code degerlerini listeler.
+outputs/runtime/waste_streams.csv icindeki tum benzersiz ewc_code degerlerini listeler.
 
 Kullanim (repo kokunden):
   python -m utils.list_unique_ewc_codes
@@ -37,7 +37,7 @@ def main() -> None:
     )
     args = p.parse_args()
     runtime: Path = args.runtime
-    ws_path = runtime / "waste_streams.xlsx"
+    ws_path = runtime / "waste_streams.csv"
     if not ws_path.is_file():
         print(f"Dosya yok: {ws_path}", file=sys.stderr)
         sys.exit(1)

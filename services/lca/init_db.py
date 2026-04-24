@@ -35,9 +35,12 @@ def init_db():
             added += 1
 
         # Çalışma zamanı proseslerinden eksik LCA profillerini ekle.
-        proc_file = RUNTIME_DIR / "processes.xlsx"
+        proc_file = RUNTIME_DIR / "processes.csv"
         if proc_file.exists():
-            df = pd.read_excel(proc_file)
+            if proc_file.suffix.lower() in {".xlsx", ".xls"}:
+                df = pd.read_excel(proc_file)
+            else:
+                df = pd.read_csv(proc_file)
             existing_profiles = {
                 row[0]
                 for row in db.query(ProcessLCAProfile.process_id).all()

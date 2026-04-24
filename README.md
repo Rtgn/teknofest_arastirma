@@ -45,9 +45,9 @@ Açın: `http://127.0.0.1:5050`
 3. Tarayıcıda kontrol panelini açın.
 4. Aylık veri ve pipeline sayfalarını kullanarak girdileri hazırlayın ve aylık pipeline çalıştırın.
 5. `outputs/runtime/` içindeki üretilen dosyaları inceleyin; özellikle:
-   - `matches_LCA_{YYYY-MM}.xlsx`
-   - `process_capacity_monthly_{YYYY-MM}.xlsx`
-   - `selected_matches_{YYYY-MM}.xlsx`
+   - `matches_LCA_{YYYY-MM}.csv`
+   - `process_capacity_monthly_{YYYY-MM}.csv`
+   - `selected_matches_{YYYY-MM}.csv`
 
 ## Aylık Pipeline Çalıştırma
 
