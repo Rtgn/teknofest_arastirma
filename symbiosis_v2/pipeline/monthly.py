@@ -213,7 +213,7 @@ def run_monthly_pipeline(
     strict_symbiosis_matches: Optional[bool] = None,
 ) -> dict[str, Any]:
     """
-    `data_runtime/` altındaki girdilerle aylık üretim.
+    `outputs/runtime/` altindaki girdilerle aylik uretim.
 
     **Sıra:** (1) `waste_process_links.xlsx` otomatik üretimi (üç temel dosya varsa),
     (2) `matches_LCA_ready.xlsx` — symbiosis dörtlemesi tam ise otomatik üretilir.

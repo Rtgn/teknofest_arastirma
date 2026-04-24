@@ -14,7 +14,8 @@ BASE_DIR: Path = PACKAGE_ROOT  # alias
 DATA_SCHEMAS_DIR: Path = PACKAGE_ROOT / "data_schemas" / "templates"
 RESOURCE_USE_TEMPLATE_PATH: Path = DATA_SCHEMAS_DIR / "resource_use_template.xlsx"
 RESOURCE_EMISSION_TEMPLATE_PATH: Path = DATA_SCHEMAS_DIR / "resource_emission_template.xlsx"
-RUNTIME_DIR: Path = PACKAGE_ROOT / "data_runtime"
+OUTPUTS_DIR: Path = PACKAGE_ROOT / "outputs"
+RUNTIME_DIR: Path = OUTPUTS_DIR / "runtime"
 OPTIMIZATION_DIR: Path = PACKAGE_ROOT / "optimization"
 GAMS_MODEL_REL: Path = Path("gms") / "new3.gms"
 GAMS_BUILD_GDX_REL: Path = Path("gms") / "build_gdx.gms"
@@ -36,7 +37,7 @@ def get_lca_api_url() -> str:
     return (
         os.environ.get(ENV_LCA_API_URL)
         or os.environ.get(ENV_LCA_SERVICE_URL)
-        or "http://127.0.0.1:8001"
+        or "http://127.0.0.1:5050/api/lca"
     ).rstrip("/")
 
 

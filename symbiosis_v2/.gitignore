@@ -1,8 +1,6 @@
 # Runtime outputs (aylık girdi/çıktı)
-data_runtime/*
-!data_runtime/README.md
-data/runtime/*
-!data/runtime/.gitkeep
+outputs/runtime/*
+!outputs/runtime/README.md
 
 # Python
 __pycache__/

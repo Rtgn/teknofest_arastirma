@@ -451,7 +451,7 @@ if __name__ == "__main__":
         "--runtime",
         type=Path,
         default=RUNTIME_DIR,
-        help="data_runtime dizini",
+        help="outputs/runtime dizini",
     )
     p.add_argument("--period", type=str, default=None, help="process_capacity_monthly_{period}.xlsx için YYYY-MM")
     p.add_argument(

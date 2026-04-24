@@ -6,9 +6,9 @@ Bu belge, OSB ölçeğinde **endüstriyel simbiyoz** karar destek sisteminin v2 
 
 ## 1. Tasarım ilkeleri
 
-- **Tek sorumluluk:** `core` (iş kuralları ve dış servis sözleşmeleri), `optimization` (GDX/GAMS/sonuç okuma), `pipeline` (üretim ve senaryo orkestrasyonu), `data_schemas` (şablon ve sütun sözleşmesi), `web` (ileride UI).
+- **Tek sorumluluk:** `core` (iş kuralları ve dış servis sözleşmeleri), `optimization` (GDX/GAMS/sonuç okuma), `pipeline` (üretim ve senaryo orkestrasyonu), `data_schemas` (şablon ve sütun sözleşmesi), `app` (Flask UI + HTTP uçları), `services` (LCA ve raporlama), `utils` (yardımcı scriptler).
 - **Periyot:** Tüm üretim çıktıları `YYYY-MM` ile etiketlenir; senaryo koşuları ayrı bir sanal periyot veya etiket ile izole edilir (v1 ile uyumlu düşünülmüştür).
-- **Girdi/çıktı ayrımı:** Ham Excel/CSV şablonları `data_schemas/templates/` altında; çalışma sırasında üretilen aylık dosyalar ayrı bir “runtime” dizininde tutulacaktır (pipeline yapılandırması ile, henüz kodda sabitlenmedi).
+- **Girdi/çıktı ayrımı:** Ham Excel/CSV şablonları `data_schemas/templates/` altında; çalışma sırasında üretilen aylık dosyalar `outputs/runtime/` altında tutulur.
 
 ---
 
@@ -25,7 +25,9 @@ Bu belge, OSB ölçeğinde **endüstriyel simbiyoz** karar destek sisteminin v2 
 | **Sonuç okuma** | `optimization/result_reader.py` | `selected_matches.csv` (`match_id`, `level`) → eşik sonrası `match_id` listesi. |
 | **Aylık pipeline** | `pipeline/monthly.py` | LCA öncesi üretim → (opsiyonel) `waste_coefficients` ile **kg min–max** → yardımcı prosesleri eleme → `process_metadata` skor yer tutucusu → temizlik → GAMS → seçilen sonuçlar (`run_monthly_pipeline` uçtan uca sonra). |
 | **Senaryo pipeline** | `pipeline/scenario.py` | `ScenarioWasteBounds` ile senaryo **atık kg min–max** → `emission_limits_report` ile **BREF limit** raporu → modifikasyon / LCA / GAMS (`run_scenario_pipeline` uçtan uca sonra). |
-| **Web (placeholder)** | `web/` | İleride Flask/FastAPI bağlantısı için iskelet. |
+| **Uygulama** | `app/` | Tek Flask uygulaması: UI, pipeline API’leri ve yerel LCA route’ları. |
+| **Servisler** | `services/` | Dahili LCA ve raporlama modülleri. |
+| **Yardımcılar** | `utils/` | Tek seferlik yardımcı scriptler ve şablon üreticiler. |
 
 ---
 
@@ -38,7 +40,7 @@ Bu belge, OSB ölçeğinde **endüstriyel simbiyoz** karar destek sisteminin v2 
         ↓
   (Aylık üretim: kapasite/atık birleşimi — core modülleri; process_metadata skor yer tutucusu)
         ↓
-LCA mikroservisi (HTTP batch) → net CO₂, kâr, taşıma vb.
+Yerel LCA API (`/api/lca/...`) → net CO₂, kâr, taşıma vb.
         ↓
 Skor birleştirme (ağırlıklar) + veri temizliği
         ↓
@@ -49,7 +51,7 @@ GAMS → selected_matches.csv
 Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 ```
 
-**Not:** Kalıcı depo (SQLite/PostgreSQL) bu iskelette yoktur; v1’deki ORM katmanı ileride `web/` veya ayrı bir `persistence` paketi ile bağlanabilir.
+**Not:** LCA için hafif SQLite kullanılır; ana uygulama verisi yine Excel/CSV runtime dosyalarındadır.
 
 ---
 
@@ -63,7 +65,7 @@ Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 6. **LCA:** `core/lca_client.py` batch.
 7. **Temizlik:** `core/data_cleaning.py`.
 8. **Optimizasyon:** `optimization/gdx_builder.py` → `gams_runner.py` → `result_reader.py`.
-9. **Çıktı:** Seçilen satırlar; durum katmanı ileride `web` veya kalıcı katmana.
+9. **Çıktı:** Seçilen satırlar; durum katmanı ileride `app` veya ayrı bir kalıcı katmana taşınabilir.
 
 ---
 
@@ -111,7 +113,7 @@ Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 - `processes_template.xlsx`: `is_auxiliary_process` (0/1) — yardımcı proses; kapasite ve eşleşme üretiminde hariç tutulur.
 - `waste_coefficients_template.xlsx`: `kg_per_ton_min`, `kg_per_ton_max` (aylık kg kırpımı için), `recovery_method`, `potential_industrial_symbiosis`, `notes`.
 
-Çalışma anında üretilen dosya adları (v1 ile uyum): `matches_LCA_{YYYY-MM}.xlsx`, `process_capacity_monthly_{YYYY-MM}.xlsx`, `selected_matches_{YYYY-MM}.xlsx` — bunlar şablon değil **çıktı** kabul edilir ve ileride `data/runtime/` veya yapılandırılabilir kök altında tutulur.
+Çalışma anında üretilen dosya adları (v1 ile uyum): `matches_LCA_{YYYY-MM}.xlsx`, `process_capacity_monthly_{YYYY-MM}.xlsx`, `selected_matches_{YYYY-MM}.xlsx` — bunlar şablon değil **çıktı** kabul edilir ve `outputs/runtime/` altında tutulur.
 
 ---
 
@@ -120,12 +122,18 @@ Seçilen eşleşmeler + raporlama (Excel/DB — sonraki aşama)
 ```
 symbiosis_v2/
 ├── core/
+├── app/
+├── services/
+│   ├── lca/
+│   └── reporter/
 ├── optimization/
 │   └── gms/          # README: .gms dosyası konumu
 ├── pipeline/
+├── utils/
+├── outputs/
+│   └── runtime/
 ├── data_schemas/
 │   └── templates/    # Excel/CSV şablonları
-├── web/
 └── docs/
     └── ARCHITECTURE.md
 ```

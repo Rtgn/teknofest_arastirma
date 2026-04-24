@@ -4,6 +4,7 @@ numpy>=1.26
 openpyxl
 requests
 pulp>=2.7
+sqlalchemy>=2.0
 # numpy>=1.26
 # openpyxl
 # requests

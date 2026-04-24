@@ -2,7 +2,7 @@
 
 Bu dizine **`new3.gms`** (optimizasyon modeli) ve **`build_gdx.gms`** (CSV → `matches.gdx`, `csv2gdx`) konur.
 
-Çalışma anında (ör. `data_runtime/` veya senaryo çalışma dizini) beklenenler:
+Calisma aninda (or. `outputs/runtime/` veya senaryo calisma dizini) beklenenler:
 
 - **Python’un yazdığı CSV:** `gams_S.csv`, `gams_E.csv`, `gams_W.csv`, `gams_IW.csv`, `gams_JP.csv`, `gams_Cap.csv` (`optimization/gdx_builder.py`)
 - **`osb_limit.txt`**

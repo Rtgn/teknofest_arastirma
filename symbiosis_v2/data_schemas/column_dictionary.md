@@ -56,7 +56,7 @@ Atık tanımı; LCA’de taşıma modu (`physical_state`) ve isteğe bağlı ber
 
 ---
 
-## 3b. ewc_nace_map (`ewc_nace_map.csv` / `.xlsx`, `data_runtime/`)
+## 3b. ewc_nace_map (`ewc_nace_map.csv` / `.xlsx`, `outputs/runtime/`)
 
 Ön-eleme Filtre 1 (EWC → izin verilen NACE listesi). Çok satır: aynı `ewc_code` birden çok `nace_code` ile.
 

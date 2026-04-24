@@ -303,7 +303,7 @@ def ensure_matches_lca_ready(
     if strict_symbiosis_only:
         return (
             "strict_symbiosis_only: factories.xlsx, processes.xlsx, waste_streams.xlsx, "
-            "waste_process_links.xlsx dosyalarının hepsi data_runtime içinde olmalı."
+            "waste_process_links.xlsx dosyalarinin hepsi outputs/runtime icinde olmali."
         )
 
     if (runtime / "matches_LCA_ready.xlsx").is_file():
@@ -311,6 +311,6 @@ def ensure_matches_lca_ready(
         return None
 
     return (
-        "matches_LCA_ready.xlsx yok. Ya dosyayı el ile koyun ya da şu dört dosyayı data_runtime/ "
+        "matches_LCA_ready.xlsx yok. Ya dosyayi el ile koyun ya da su dort dosyayi outputs/runtime/ "
         f"altına ekleyin (otomatik üretim): {', '.join(SYMBIOSIS_BUNDLE_FILES)}"
     )

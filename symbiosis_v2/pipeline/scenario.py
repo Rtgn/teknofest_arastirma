@@ -139,7 +139,7 @@ def run_scenario_pipeline(
     runtime_dir: Optional[Path] = None,
 ) -> dict[str, Any]:
     """
-    Baz: `data_runtime/matches_LCA_{base_period}.xlsx` ve aynı dizinde
+    Baz: `outputs/runtime/matches_LCA_{base_period}.xlsx` ve ayni dizinde
     `process_capacity_monthly_{base_period}.xlsx`.
 
     ``digital_twin``: fabrika/proses çarpanları (bkz. ``pipeline.digital_twin``) — MILP öncesi uygulanır.
