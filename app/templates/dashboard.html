@@ -51,7 +51,7 @@
     <div class="kpi-card blue">
       <span class="kpi-icon">📊</span>
       <div>
-        <div class="kpi-value">{{ "{:,.0f}"|format(ml.waste_kg)|replace(",", " ") }}</div>
+        <div class="kpi-value">{{ ml.waste_kg|numfmt(0) }}</div>
         <div class="kpi-label">Potansiyel atık hacmi · kg/ay</div>
       </div>
     </div>
@@ -83,14 +83,14 @@
     <div class="kpi-card" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);">
       <span class="kpi-icon">🌿</span>
       <div>
-        <div class="kpi-value">{{ "{:,.2f}"|format(ml.co2)|replace(",", " ") }}</div>
+        <div class="kpi-value">{{ ml.co2|numfmt(2) }}</div>
         <div class="kpi-label">Σ CO₂ göstergesi</div>
       </div>
     </div>
     <div class="kpi-card" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);">
       <span class="kpi-icon">💰</span>
       <div>
-        <div class="kpi-value">{{ "{:,.2f}"|format(ml.profit)|replace(",", " ") }}</div>
+        <div class="kpi-value">{{ ml.profit|numfmt(2) }}</div>
         <div class="kpi-label">Σ kâr göstergesi</div>
       </div>
     </div>
@@ -109,10 +109,10 @@
     <span class="menu-label" style="padding:0 0 10px;">Kapasite özeti</span>
     <div style="display:flex;flex-wrap:wrap;gap:28px;font-size:13.5px;color:var(--text-secondary);line-height:1.55;">
       {% if dashboard_summary.capacity_monthly_total_kg is not none %}
-      <span><strong style="color:var(--text-primary);font-size:15px;">{{ "{:,.0f}"|format(dashboard_summary.capacity_monthly_total_kg)|replace(",", " ") }}</strong> kg/ay · Toplam proses kapasitesi</span>
+      <span><strong style="color:var(--text-primary);font-size:15px;">{{ dashboard_summary.capacity_monthly_total_kg|numfmt(0) }}</strong> kg/ay · Toplam proses kapasitesi</span>
       {% endif %}
       {% if dashboard_summary.osb_limit_kg is not none %}
-      <span><strong style="color:var(--text-primary);font-size:15px;">{{ "{:,.0f}"|format(dashboard_summary.osb_limit_kg)|replace(",", " ") }}</strong> kg · OSB limiti</span>
+      <span><strong style="color:var(--text-primary);font-size:15px;">{{ dashboard_summary.osb_limit_kg|numfmt(0) }}</strong> kg · OSB limiti</span>
       {% endif %}
     </div>
   </div>
@@ -133,21 +133,21 @@
       <div class="kpi-card blue">
         <span class="kpi-icon">⚖️</span>
         <div>
-          <div class="kpi-value">{{ "{:,.0f}"|format(sel.waste_kg)|replace(",", " ") }}</div>
+          <div class="kpi-value">{{ sel.waste_kg|numfmt(0) }}</div>
           <div class="kpi-label">Seçilen akış · kg/ay</div>
         </div>
       </div>
       <div class="kpi-card orange">
         <span class="kpi-icon">🌿</span>
         <div>
-          <div class="kpi-value">{{ "{:,.2f}"|format(sel.co2)|replace(",", " ") }}</div>
+          <div class="kpi-value">{{ sel.co2|numfmt(2) }}</div>
           <div class="kpi-label">Σ CO₂ · seçilen</div>
         </div>
       </div>
       <div class="kpi-card purple">
         <span class="kpi-icon">💰</span>
         <div>
-          <div class="kpi-value">{{ "{:,.2f}"|format(sel.profit)|replace(",", " ") }}</div>
+          <div class="kpi-value">{{ sel.profit|numfmt(2) }}</div>
           <div class="kpi-label">Σ kâr · seçilen</div>
         </div>
       </div>

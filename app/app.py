@@ -67,6 +67,16 @@ app = Flask(
     static_folder=str(_WEB_ROOT / "static"),
     static_url_path="/static",
 )
+
+
+@app.template_filter("numfmt")
+def _numfmt(value, decimals: int = 0) -> str:
+    try:
+        return f"{float(value):,.{int(decimals)}f}".replace(",", " ")
+    except (TypeError, ValueError):
+        return ""
+
+
 init_db()
 
 
