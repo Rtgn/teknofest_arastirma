@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Veri &amp; pipeline{% endblock %}
+{% block page_title %}Veri kökü &amp; dosyalar{% endblock %}
+
+{% block content %}
+<p style="color:var(--text-secondary);font-size:14px;max-width:720px;line-height:1.6;margin-bottom:8px;">
+  Bu sayfa salt okunur bir özet sunar. Aylık üretim, LCA ve optimizasyon adımları Python pipeline üzerinden çalışır; tüm çıktılar aşağıdaki dizine yazılır.
+</p>
+<p class="code-path">Veri kökü: <code>{{ runtime }}</code></p>
+
+<div class="chart-card" style="margin-top:20px;">
+  <div class="chart-header">İzlenen dosyalar</div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Dosya</th>
+          <th>Durum</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in files_info %}
+        <tr>
+          <td><code style="font-size:12px;">{{ f.name }}</code></td>
+          <td>{% if f.exists %}<span style="color:var(--accent-green);">● Hazır</span>{% else %}<span style="color:var(--text-dim);">○ Bekleniyor</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="chart-card" style="margin-top:20px;padding:22px;max-width:760px;">
+  <div class="table-header" style="padding:0 0 14px;border:none;">Komut referansı</div>
+
+  <p style="font-size:13px;color:var(--text-secondary);margin-bottom:6px;">Aylık pipeline’ı çalıştır</p>
+  <pre style="padding:14px 16px;background:var(--bg-inset);border:1px solid var(--border);border-radius:6px;font-size:12.5px;overflow:auto;font-family:var(--font-mono);color:var(--text-primary);">python -m pipeline.monthly</pre>
+
+  <p style="font-size:13px;color:var(--text-secondary);margin:16px 0 6px;">Web sunucusunu başlat</p>
+  <pre style="padding:14px 16px;background:var(--bg-inset);border:1px solid var(--border);border-radius:6px;font-size:12.5px;overflow:auto;font-family:var(--font-mono);color:var(--text-primary);">python -m app.app</pre>
+
+  <p style="margin-top:14px;font-size:12.5px;color:var(--text-dim);">Arayüz adresi: <code>http://127.0.0.1:5050</code></p>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+waste_id,recovery_rate,target_resource_type,kg_per_ton_min,kg_per_ton_max,recovery_method,potential_industrial_symbiosis,notes
+W-01,0.95,metal_scrap,50.0,150.0,Ergitme,Metalurji,-
+W-02,0.15,waste_chemical,5.0,25.0,Faz Ayrımı,Kimya,-
+W-03,0.5,wastewater_sludge,2.0,10.0,Termal/Pirometalurjik,Çimento,-
+W-04,0.7,alternative_fuel,1.0,8.0,Enerji Geri Kazanımı,Çimento,-
+W-05,0.85,waste_solvent,2.0,15.0,Distilasyon,Kimya/Boya,-
+W-06,0.8,polymer_waste,10.0,40.0,Mekanik Geri Dönüşüm,İnşaat/Yalıtım,-
+W-07,0.9,textile_waste,20.0,80.0,Mekanik Geri Dönüşüm,Tekstil/Yalıtım,-
+W-08,0.4,wastewater_sludge,5.0,30.0,Pirometalurjik,Metalurji,-
+W-09,0.95,metal_scrap,50.0,150.0,Ergitme,"Demir-Çelik, Döküm, Alüminyum, Bakır",-
+W-10,0.15,waste_chemical,2.0,15.0,Faz Ayrımı,Kimya,-
+W-11,0.5,wastewater_sludge,1.0,8.0,Termal/Pirometalurjik,"Çimento, Metalurji",-
+W-12,0.7,alternative_fuel,2.0,12.0,Enerji Geri Kazanımı,"Çimento, Enerji",-
+W-13,0.9,waste_powder,0.5,5.0,Mekanik,"Boya, Yalıtım",-
+W-14,0.85,waste_solvent,1.0,10.0,Distilasyon,Kimya/Boya,-
+W-15,0.4,wastewater_sludge,5.0,25.0,Pirometalurjik,Metalurji,-
+W-16,0.85,polymer_waste,100.0,400.0,Mekanik Geri Dönüşüm,"İnşaat, İzolasyon, Otomotiv",-
+W-17,0.6,mineral_waste,50.0,200.0,Kimyasal/Fiziksel Ayırma,"Aşındırıcı, Seramik",-
+W-18,0.1,waste_chemical,10.0,50.0,Nötralizasyon/Membran,Kimya,-
+W-19,0.2,waste_chemical,5.0,30.0,Filtrasyon,Kimya,-
+W-20,0.8,waste_solvent,2.0,15.0,Distilasyon,"Kimya, Çimento",-
+W-21,0.5,mineral_waste,10.0,60.0,Susuzlaştırma,"Çimento, İnşaat",-
+W-22,0.9,glass_waste,10.0,50.0,Cam Geri Dönüşüm,"Cam, Seramik",-
+W-23,0.9,biomass,5000.0,99000.0,Kompost/Biyogaz,"Tarım, Yem, Biyokütle",-
+W-24,0.85,waste_solvent,50.0,800.0,Distilasyon/ATY,"Kimya, Çimento",-
+W-25,0.6,alternative_fuel,10.0,200.0,Yakma,"Çimento, Kimya",-
+W-26,0.15,waste_chemical,100.0,2500.0,Faz Ayrımı/Membran,Su Arıtma,-
+W-27,0.2,filter_waste,1.0,15.0,Toplama/İmha,Kimya,-
+W-28,0.8,activated_carbon,0.5,5.0,Termal Rejenerasyon,Karbon Üreticileri,-
+W-29,0.3,wastewater_sludge,20.0,150.0,Piroliz/Biyogaz,"Çimento, Biyogaz",-
+W-30,0.85,alternative_fuel,50.0,150.0,SRF/Yakma,"Çimento, Enerji",-
+W-31,0.99,metal_scrap,5.0,30.0,Ergitme,Demir-Çelik,-
+W-32,0.99,metal_scrap,2.0,15.0,Ergitme,Alüminyum,-
+W-33,0.85,polymer_waste,50.0,150.0,Fiziksel Geri Dönüşüm,"Plastik Sanayi, Çimento",-
+W-34,0.7,mineral_waste,50.0,150.0,Dolgu Malzemesi,"İnşaat, Çimento",-
+W-35,0.6,polymer_waste,10.0,50.0,Piroliz,"Kimya, Enerji",-
+W-36,0.5,biomass,20.0,100.0,Anaerobik Çürütme,"Biyogaz, Tarım",-
+W-37,0.9,activated_carbon,0.1,1.5,Termal Rejenerasyon,Aktif Karbon Üreticileri,-
+W-38,0.95,polymer_waste,10.0,50.0,Rejenerasyon,Kauçuk/Plastik,-
+W-39,0.8,polymer_waste,50.0,150.0,Mikronize Öğütme,"Asfalt, Zemin Kaplama",-
+W-40,0.9,textile_waste,5.0,20.0,Mekanik Geri Dönüşüm,Tekstil/Yalıtım,-
+W-41,0.7,alternative_fuel,2.0,15.0,Yakma,Çimento/Enerji,-
+W-42,0.85,waste_solvent,5.0,25.0,Distilasyon,Kimya/Boya,-
+W-43,0.6,paper_waste,2.0,10.0,Geri Dönüşüm,Kağıt/Karton,-
+W-44,0.4,alternative_fuel,5.0,30.0,Termal Bertaraf,Çimento/Biyogaz,-
+W-45,1.0,metal_scrap,1.34,276.0,Ergitme,"Demir-Çelik, Döküm",-
+W-46,0.9,mineral_waste,2.92,10.72,Sinterleme,"Çimento, Entegre Çelik",-
+W-47,0.95,waste_chemical,41.0,47.0,Spray Roasting,"Kimya, Asit Rejenerasyonu",-
+W-48,0.6,alternative_fuel,0.09,4.31,Emülsiyon Kırma,"Çimento, Enerji",-
+W-49,1.0,mineral_waste,5.0,25.0,Doğrudan Satış,Pigment/Boya,-
+W-50,0.3,wastewater_sludge,5.0,20.0,Pirometalurji,İkincil Metalurji,
+W-51,0.6,alternative_fuel,5.0,25.0,Yakma,"Çimento, Tehlikeli Atık Yakma",-
+W-52,0.85,waste_solvent,2.0,20.0,Distilasyon,"Kimya, Boya",-
+W-53,0.1,waste_chemical,2000.0,15000.0,Ozonoliz/İleri Oksidasyon,Su Arıtma,-
+W-54,0.7,alternative_fuel,5.0,30.0,Termal Bertaraf,"Enerji, Çimento",-
+W-55,0.9,paper_waste,10.0,50.0,Geri Dönüşüm,Kağıt/Ambalaj,-
+W-56,0.0,hazardous_waste,0.5,3.0,Termal Bertaraf,Tehlikeli Atık Bertaraf,-
+W-57,0.5,biomass,5.0,40.0,Biyogaz/Thermal,"Çimento, Biyogaz",-
+W-58,1.0,metal_scrap,50.0,150.0,Ergitme,"Demir-Çelik, Döküm",-
+W-59,0.8,mineral_waste,2.0,15.0,Cüruf Geri Kazanımı,Çimento,-
+W-60,0.7,mineral_waste,2.0,10.0,Dolgu,İnşaat,-
+W-61,0.2,waste_chemical,2.0,10.0,Nötralizasyon,Kimya/Arıtma,-
+W-62,0.5,wastewater_sludge,1.0,5.0,Termal Bertaraf,Çimento/Metalurji,-
+W-63,0.7,alternative_fuel,2.0,12.0,Yakma,Çimento/Enerji,-
+W-64,0.9,waste_powder,0.5,3.0,Yeniden Kullanım,Boya/Yalıtım,-
+W-65,0.85,waste_solvent,2.0,15.0,Distilasyon,Kimya/Boya,-
+W-66,0.4,wastewater_sludge,5.0,20.0,Pirometalurji,İkincil Metalurji,-
+W-67,0.85,waste_solvent,5.0,50.0,Distilasyon,Kimya/Boya,-
+W-68,0.2,waste_chemical,1000.0,6000.0,Faz Ayrımı/AOP,Biyogaz,-
+W-69,0.6,alternative_fuel,5.0,40.0,Yakma,Çimento/Enerji,-
+W-70,0.9,packaging_waste,20.0,80.0,Geri Dönüşüm,Kağıt/Cam/Plastik,-
+W-71,0.8,activated_carbon,1.0,10.0,Termal Rejenerasyon,Karbon Üreticileri,-
+W-72,0.8,activated_carbon,0.5,5.0,Termal Rejenerasyon,Kimya,-
+W-73,0.4,wastewater_sludge,5.0,35.0,Termal/Biyogaz,Çimento/Biyogaz,-

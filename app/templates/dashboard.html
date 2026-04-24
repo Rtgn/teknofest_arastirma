@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}Özet{% endblock %}
+{% block page_title %}OSB özeti{% endblock %}
+
+{% block content %}
+<p class="code-path">Veri kökü <code>{{ runtime_path }}</code></p>
+
+{% set inv = dashboard_summary.inventory %}
+{% set ml = dashboard_summary.matches_lca %}
+{% set sel = dashboard_summary.selected %}
+
+<div class="kpi-grid" style="margin-top:8px;">
+  <div class="kpi-card blue">
+    <span class="kpi-icon">🏭</span>
+    <div>
+      <div class="kpi-value">{% if inv.factories is not none %}{{ inv.factories }}{% else %}—{% endif %}</div>
+      <div class="kpi-label">Kayıtlı fabrika</div>
+    </div>
+  </div>
+  <div class="kpi-card green">
+    <span class="kpi-icon">⚙️</span>
+    <div>
+      <div class="kpi-value">{% if inv.processes is not none %}{{ inv.processes }}{% else %}—{% endif %}</div>
+      <div class="kpi-label">Tanımlı proses</div>
+    </div>
+  </div>
+  <div class="kpi-card orange">
+    <span class="kpi-icon">♻️</span>
+    <div>
+      <div class="kpi-value">{% if inv.waste_streams is not none %}{{ inv.waste_streams }}{% else %}—{% endif %}</div>
+      <div class="kpi-label">Envanterdeki atık akışı</div>
+    </div>
+  </div>
+  <div class="kpi-card purple">
+    <span class="kpi-icon">📅</span>
+    <div>
+      <div class="kpi-value">{{ dashboard_summary.periods_total }}</div>
+      <div class="kpi-label">Aylık eşleşme dönemi</div>
+    </div>
+  </div>
+</div>
+
+{% if dashboard_summary.latest_period %}
+<div class="chart-card" style="margin-top:24px;padding:20px 22px;">
+  <div class="table-header" style="margin:-20px -22px 14px;padding:14px 22px;">Son baz dönem <code>{{ dashboard_summary.latest_period }}</code></div>
+  <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:18px;max-width:780px;">
+    Aşağıdaki potansiyel ağ metrikleri, bu döneme ait <code>matches_LCA_*.csv</code> tablosundan türetilir — optimizasyon öncesi tüm aday eşleşmeleri kapsar.
+  </p>
+  <div class="kpi-grid">
+    {% if ml %}
+    <div class="kpi-card blue">
+      <span class="kpi-icon">📊</span>
+      <div>
+        <div class="kpi-value">{{ ml.waste_kg|numfmt(0) }}</div>
+        <div class="kpi-label">Potansiyel atık hacmi · kg/ay</div>
+      </div>
+    </div>
+    <div class="kpi-card green">
+      <span class="kpi-icon">📑</span>
+      <div>
+        <div class="kpi-value">{{ ml.rows }}</div>
+        <div class="kpi-label">Eşleşme satırı</div>
+      </div>
+    </div>
+    <div class="kpi-card orange">
+      <span class="kpi-icon">🔗</span>
+      <div>
+        <div class="kpi-value">{{ ml.unique_pairs }}</div>
+        <div class="kpi-label">Kaynak → hedef çifti</div>
+      </div>
+    </div>
+    <div class="kpi-card purple">
+      <span class="kpi-icon">🧭</span>
+      <div>
+        <div class="kpi-value">{{ ml.unique_factories }}</div>
+        <div class="kpi-label">Ağdaki tesis sayısı</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% if ml %}
+  <div class="kpi-grid" style="margin-top:12px;">
+    <div class="kpi-card" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);">
+      <span class="kpi-icon">🌿</span>
+      <div>
+        <div class="kpi-value">{{ ml.co2|numfmt(2) }}</div>
+        <div class="kpi-label">Σ CO₂ göstergesi</div>
+      </div>
+    </div>
+    <div class="kpi-card" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);">
+      <span class="kpi-icon">💰</span>
+      <div>
+        <div class="kpi-value">{{ ml.profit|numfmt(2) }}</div>
+        <div class="kpi-label">Σ kâr göstergesi</div>
+      </div>
+    </div>
+    <div class="kpi-card" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);">
+      <span class="kpi-icon">⭐</span>
+      <div>
+        <div class="kpi-value">{% if ml.avg_sustainability is not none %}{{ "%.4f"|format(ml.avg_sustainability) }}{% else %}—{% endif %}</div>
+        <div class="kpi-label">Ortalama sürdürülebilirlik skoru</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if dashboard_summary.capacity_monthly_total_kg is not none or dashboard_summary.osb_limit_kg is not none %}
+  <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border);">
+    <span class="menu-label" style="padding:0 0 10px;">Kapasite özeti</span>
+    <div style="display:flex;flex-wrap:wrap;gap:28px;font-size:13.5px;color:var(--text-secondary);line-height:1.55;">
+      {% if dashboard_summary.capacity_monthly_total_kg is not none %}
+      <span><strong style="color:var(--text-primary);font-size:15px;">{{ dashboard_summary.capacity_monthly_total_kg|numfmt(0) }}</strong> kg/ay · Toplam proses kapasitesi</span>
+      {% endif %}
+      {% if dashboard_summary.osb_limit_kg is not none %}
+      <span><strong style="color:var(--text-primary);font-size:15px;">{{ dashboard_summary.osb_limit_kg|numfmt(0) }}</strong> kg · OSB limiti</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if sel %}
+  <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border);">
+    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">Seçilen simbiyoz</div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">Optimizasyon sonucunda son koşuda seçilen eşleşmeler — potansiyel ağın aktif alt kümesi.</p>
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <span class="kpi-icon">✓</span>
+        <div>
+          <div class="kpi-value">{{ sel.rows }}</div>
+          <div class="kpi-label">Seçilen eşleşme sayısı</div>
+        </div>
+      </div>
+      <div class="kpi-card blue">
+        <span class="kpi-icon">⚖️</span>
+        <div>
+          <div class="kpi-value">{{ sel.waste_kg|numfmt(0) }}</div>
+          <div class="kpi-label">Seçilen akış · kg/ay</div>
+        </div>
+      </div>
+      <div class="kpi-card orange">
+        <span class="kpi-icon">🌿</span>
+        <div>
+          <div class="kpi-value">{{ sel.co2|numfmt(2) }}</div>
+          <div class="kpi-label">Σ CO₂ · seçilen</div>
+        </div>
+      </div>
+      <div class="kpi-card purple">
+        <span class="kpi-icon">💰</span>
+        <div>
+          <div class="kpi-value">{{ sel.profit|numfmt(2) }}</div>
+          <div class="kpi-label">Σ kâr · seçilen</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if dashboard_summary.latest_error %}
+  <p style="margin-top:14px;color:var(--accent-orange);font-size:13px;">Tablo okunamadı: {{ dashboard_summary.latest_error }}</p>
+  {% endif %}
+</div>
+{% elif not periods %}
+<div class="empty-state chart-card" style="margin-top:24px;">
+  <p><strong>Henüz eşleşme dönemi yok.</strong></p>
+  <p style="margin-top:10px;max-width:560px;margin-left:auto;margin-right:auto;">Aylık pipeline çalıştırıldığında potansiyel ağ metrikleri ve dönem listesi burada görünecektir. Yukarıdaki envanter sayıları <code>factories.csv</code> ve <code>processes.csv</code> dosyalarından okunur.</p>
+</div>
+{% endif %}
+
+{% if preview_error %}
+<div class="empty-state chart-card" style="margin-top:16px;">
+  <p>Önizleme okunamadı: {{ preview_error }}</p>
+</div>
+{% elif preview_rows and preview_period %}
+<div class="table-card" style="margin-top:20px;">
+  <div class="table-header">Örnek eşleşmeler <code>{{ preview_period }}</code></div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          {% for k in preview_rows[0].keys() %}
+          <th>{{ k }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in preview_rows %}
+        <tr>
+          {% for k, v in row.items() %}
+          <td>{{ v }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<div style="margin-top:28px;display:flex;flex-wrap:wrap;gap:10px;">
+  <a class="btn-primary" href="{{ url_for('network_page') }}">Ağ haritasını aç →</a>
+  {% if periods %}
+  <a class="btn-ghost" href="{{ url_for('monthly_data_page') }}" style="text-decoration:none;">Aylık veriyi düzenle →</a>
+  {% endif %}
+</div>
+{% endblock %}
